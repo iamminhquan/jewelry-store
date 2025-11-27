@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Giới thiệu - FlaskShop{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-8">
+    <h1 class="text-4xl font-bold text-gray-800 mb-6">Về chúng tôi</h1>
+    <div class="prose max-w-none">
+        <p class="text-lg text-gray-600 mb-4">
+            FlaskShop là một dự án e-commerce được xây dựng bằng Flask và TailwindCSS.
+        </p>
+        <p class="text-lg text-gray-600 mb-4">
+            Dự án này được thiết kế với cấu trúc sạch, dễ mở rộng cho các tính năng thương mại điện tử.
+        </p>
+        <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Công nghệ sử dụng</h2>
+        <ul class="list-disc list-inside text-gray-600 space-y-2">
+            <li>Flask - Python Web Framework</li>
+            <li>Jinja2 - Template Engine</li>
+            <li>TailwindCSS - Utility-first CSS Framework</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,12 @@
+{
+  "name": "flask-tailwind-app",
+  "version": "1.0.0",
+  "description": "Flask app with TailwindCSS",
+  "scripts": {
+    "build-css": "tailwindcss -i ./app/static/css/input.css -o ./app/static/css/output.css",
+    "watch-css": "tailwindcss -i ./app/static/css/input.css -o ./app/static/css/output.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
