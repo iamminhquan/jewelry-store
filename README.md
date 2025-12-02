@@ -1,6 +1,6 @@
-# FlaskShop - Flask + TailwindCSS Project
+# Jewelry Store Project
 
-Dự án e-commerce được xây dựng với Flask (Python) và TailwindCSS, có cấu trúc sạch và dễ mở rộng.
+Dự án e-commerce được xây dựng với Flask (Python) và TailwindCSS.
 
 ## 📁 Cấu trúc dự án
 
@@ -29,6 +29,7 @@ flask-app/
 ├── requirements.txt         # Python dependencies
 ├── run.py                   # Application entry point
 └── README.md                # This file
+└── LICENSE                  # License
 ```
 
 ## 🚀 Cài đặt và chạy dự án
@@ -129,89 +130,25 @@ theme: {
 
 ## 🔧 Cấu hình môi trường
 
-Tạo file `.env` (không commit vào git) để cấu hình:
+Tạo file `.env` để cấu hình:
 
 ```env
 SECRET_KEY=your-secret-key-here
 FLASK_DEBUG=True
 ```
 
-## 📦 Mở rộng cho E-commerce
-
-### Các tính năng cần thêm:
-
-1. **Models & Database**
-   - Cài đặt SQLAlchemy hoặc MongoDB
-   - Tạo models: User, Product, Order, Cart, Category
-   - Thêm vào `app/models/`
-
-2. **Authentication**
-   - Flask-Login cho user session
-   - Flask-Bcrypt cho password hashing
-   - Routes: `/login`, `/register`, `/logout`
-
-3. **Product Management**
-   - Routes: `/products`, `/product/<id>`
-   - CRUD operations cho products
-   - Image upload (Flask-Uploads)
-
-4. **Shopping Cart**
-   - Session-based cart
-   - Routes: `/cart`, `/cart/add`, `/cart/remove`
-   - AJAX để update cart không reload page
-
-5. **Checkout & Orders**
-   - Routes: `/checkout`, `/orders`
-   - Payment integration (Stripe, PayPal)
-   - Order confirmation email
-
-6. **Admin Panel**
-   - Flask-Admin hoặc custom admin
-   - Quản lý products, orders, users
-
-7. **API Endpoints**
-   - RESTful API cho mobile app
-   - Flask-RESTful hoặc Flask-RESTX
-
-### Cấu trúc mở rộng đề xuất:
+## 🛠️ Dependencies
 
 ```
-app/
-├── routes/
-│   ├── main.py          # Public routes
-│   ├── auth.py          # Authentication
-│   ├── products.py      # Product routes
-│   ├── cart.py          # Cart routes
-│   ├── orders.py        # Order routes
-│   └── admin.py         # Admin routes
-├── services/
-│   ├── auth_service.py
-│   ├── product_service.py
-│   ├── cart_service.py
-│   └── order_service.py
-├── models/
-│   ├── user.py
-│   ├── product.py
-│   ├── order.py
-│   └── cart.py
-└── utils/
-    ├── validators.py
-    └── helpers.py
-```
-
-## 🛠️ Dependencies đề xuất cho E-commerce
-
-Thêm vào `requirements.txt`:
-
-```
-Flask==3.0.0
-Flask-Login==0.6.3
-Flask-Bcrypt==1.0.1
-Flask-SQLAlchemy==3.1.1
-Flask-Migrate==4.0.5
-Flask-Mail==0.9.1
-Flask-Uploads==0.2.1
-python-dotenv==1.0.0
+blinker==1.9.0
+click==8.3.1
+colorama==0.4.6
+Flask==3.1.2
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+ruff==0.14.6
+Werkzeug==3.1.3
 ```
 
 ## 📚 Tài liệu tham khảo
@@ -226,5 +163,4 @@ MIT License
 
 ## 👤 Author
 
-Created for e-commerce project
-
+Bùi Minh Quân - Created for e-commerce project
