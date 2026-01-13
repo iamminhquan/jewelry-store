@@ -1,20 +1,29 @@
 from flask import Flask
-import os
+from app.config import Config
+from app.extensions import db
 
 
 def create_app():
-    """Factory function để tạo Flask app"""
-    app = Flask(__name__)
+    """Khởi tạo một ứng dụng Flask
 
-    # Cấu hình
-    app.config["SECRET_KEY"] = os.environ.get(
-        "SECRET_KEY", "dev-secret-key-change-in-production"
-    )
-    app.config["DEBUG"] = os.environ.get("FLASK_DEBUG", "True") == "True"
+    Returns:
+        Flask: Trả về một đối tượng Flask.
+    """
+    # Khởi tạo Flask app.
+    app = Flask(__name__, template_folder="templates")
 
-    # Đăng ký blueprints
-    from app.routes.main import main_bp
+    # Tải cấu hình từ đối tượng Config.
+    app.config.from_object(Config)
 
+    # Kết nối đến Cơ sở dữ liệu.
+    db.init_app(app)
+
+    # Import các Blueprint vào Factory function.
+    from app.routes.main_route import main_bp
+    from app.routes.product_route import product_bp
+
+    # Đăng ký các Blueprint bên trên.
     app.register_blueprint(main_bp)
+    app.register_blueprint(product_bp)
 
     return app
