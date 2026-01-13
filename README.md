@@ -8,10 +8,10 @@ Dự án e-commerce được xây dựng với Flask (Python) và TailwindCSS.
 flask-app/
 ├── app/
 │   ├── __init__.py          # Flask app factory
-│   ├── routes/              # Route handlers
+│   ├── routes/              # Route handlers (Controller)
 │   │   ├── __init__.py
 │   │   └── main.py          # Main routes
-│   ├── templates/           # Jinja2 templates
+│   ├── templates/           # Jinja2 templates (Views)
 │   │   ├── base.html        # Base layout
 │   │   ├── index.html       # Trang chủ
 │   │   └── about.html       # Trang giới thiệu
@@ -22,12 +22,11 @@ flask-app/
 │   │   ├── js/
 │   │   │   └── main.js      # JavaScript
 │   │   └── images/          # Images
-│   ├── services/            # Business logic
-│   └── models/              # Database models
+│   └── models/              # Database models (Models)
 ├── tailwind.config.js       # TailwindCSS config
 ├── package.json             # Node dependencies
 ├── requirements.txt         # Python dependencies
-├── run.py                   # Application entry point
+├── wsgi.py                  # Application entry point
 └── README.md                # This file
 └── LICENSE                  # License
 ```
@@ -42,12 +41,12 @@ python -m venv venv
 
 # Kích hoạt virtual environment
 # Windows:
-venv\Scripts\activate
+venv\Scripts\Activate.ps1
 # Linux/Mac:
 source venv/bin/activate
 
 # Cài đặt dependencies
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### Bước 2: Cài đặt Node dependencies và TailwindCSS
@@ -82,7 +81,7 @@ Sau đó mở trình duyệt và truy cập: `http://localhost:5000`
 python run.py
 
 # Chạy với Flask CLI
-flask run
+flask --app wsgi run
 ```
 
 ### TailwindCSS
