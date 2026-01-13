@@ -1,15 +1,15 @@
-{% extends "base.html" %} {% block title %}Trang chủ - FlaskShop{% endblock %}
+{% extends "base.html" %}
+
+{% block title %}Trang chủ{% endblock %}
+
 {% block content %}
+
 <!-- Hero Section -->
-<div
-  class="bg-gradient-to-r from-primary-600 to-primary-800 text-white rounded-lg p-12 mb-8"
->
+<div class="bg-gradient-to-r from-primary-600 to-primary-800 text-white rounded-lg p-12 mb-8">
   <div class="text-center">
-    <h1 class="text-4xl font-bold mb-4">Chào mừng đến với FlaskShop</h1>
-    <p class="text-xl mb-6">Cửa hàng trực tuyến với Flask & TailwindCSS</p>
-    <button
-      class="bg-white text-primary-600 py-2 px-6 rounded-lg font-semibold hover:bg-gray-100 transition"
-    >
+    <h1 class="text-4xl font-bold mb-4">Chào mừng đến với cửa hàng của chúng tôi</h1>
+    <p class="text-xl mb-6">Cửa hàng trang sức trực tuyến</p>
+    <button class="bg-white text-primary-600 py-2 px-6 rounded-lg font-semibold hover:bg-gray-100 transition">
       Khám phá ngay
     </button>
   </div>
@@ -19,10 +19,23 @@
 <div class="mb-8">
   <h2 class="text-3xl font-bold text-gray-800 mb-6">Sản phẩm nổi bật</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    {% for product in products %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+      <div class="h-48 bg-gradient-to-br from-primary-400 to-primary-600"></div>
+      <div class="p-6">
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
+        <p class="text-gray-600 mb-4">{{ product.mo_ta }}</p>
+        <div class="flex justify-between items-center">
+          <span class="text-2xl font-bold text-primary-600">{{ product.gia_xuat }}</span>
+          <button class="btn-primary">Thêm vào giỏ</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+
     <!-- Product Card 1 -->
-    <div
-      class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition"
-    >
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
       <div class="h-48 bg-gradient-to-br from-primary-400 to-primary-600"></div>
       <div class="p-6">
         <h3 class="text-xl font-semibold text-gray-800 mb-2">Sản phẩm 1</h3>
@@ -35,9 +48,7 @@
     </div>
 
     <!-- Product Card 2 -->
-    <div
-      class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition"
-    >
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
       <div class="h-48 bg-gradient-to-br from-purple-400 to-pink-600"></div>
       <div class="p-6">
         <h3 class="text-xl font-semibold text-gray-800 mb-2">Sản phẩm 2</h3>
@@ -50,9 +61,7 @@
     </div>
 
     <!-- Product Card 3 -->
-    <div
-      class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition"
-    >
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
       <div class="h-48 bg-gradient-to-br from-yellow-400 to-orange-600"></div>
       <div class="p-6">
         <h3 class="text-xl font-semibold text-gray-800 mb-2">Sản phẩm 3</h3>
