@@ -7,6 +7,9 @@ node_modules/
 ### For output.css
 ./app/static/css/output.css
 
+### Static Images
+.app/static/images/*
+
 ### Flask ###
 instance/*
 !instance/.gitignore
