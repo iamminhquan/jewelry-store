@@ -1,134 +1,136 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Đăng nhập</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
+{% block title %}Đăng nhập{% endblock %}
 
-<body class="min-h-screen bg-rose-50 text-slate-800">
-  <div class="min-h-screen flex items-center justify-center px-4 py-10">
-    <div class="w-full max-w-md">
-
-      <section class="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-rose-100">
-        <div>
-          <h2 class="text-2xl font-semibold text-slate-900 flex justify-center items-center">Đăng nhập</h2>
-        </div>
-
-        <form class="mt-6 space-y-5">
-          <div>
-            <label for="email" class="text-sm font-medium text-slate-700">Email</label>
-            <div class="mt-2">
-              <input id="email" name="email" type="email" autocomplete="email" placeholder="you@email.com"
-                pattern="^[A-Za-z0-9._%+-]+@(gmail|hotmail|yahoo|outlook)\.com(\.vn)?$"
-                title="Email phải thuộc gmail, hotmail, yahoo hoặc outlook (ví dụ: ten@gmail.com)"
-                class="w-full rounded-lg border border-rose-200 bg-rose-50/60 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-                required />
-            </div>
-          </div>
-
-          <div>
-            <label for="password" class="text-sm font-medium text-slate-700">Mật khẩu</label>
-            <div class="relative mt-2">
-              <input id="password" name="password" type="password" autocomplete="current-password"
-                placeholder="Nhập mật khẩu" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
-                title="Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
-                class="w-full rounded-lg border border-rose-200 bg-rose-50/60 px-4 py-2.5 pr-11 text-sm text-slate-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
-                required />
-              <button type="button" id="toggle-password" aria-label="Hiện mật khẩu"
-                class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-rose-500 transition hover:bg-rose-100/70">
-                <svg id="icon-eye" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M2.5 12s3.6-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.6 6.5-9.5 6.5S2.5 12 2.5 12Z" stroke="currentColor"
-                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                  <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.6" />
-                </svg>
-                <svg id="icon-eye-off" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M3.5 5.5 20.5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-                  <path
-                    d="M10.4 6.3A9.6 9.6 0 0 1 12 6c5.9 0 9.5 6 9.5 6a15.3 15.3 0 0 1-4.5 4.9M6.6 8.1A15.6 15.6 0 0 0 2.5 12s3.6 6 9.5 6a9.7 9.7 0 0 0 4.3-1"
-                    stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M9.8 9.8a3.2 3.2 0 0 0 4.4 4.4" stroke="currentColor" stroke-width="1.6"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
-            <label class="flex items-center gap-2 text-slate-600">
-              <input type="checkbox" class="h-4 w-4 rounded border-rose-300 text-rose-500 focus:ring-rose-400" />
-              Ghi nhớ đăng nhập
-            </label>
-            <a href="{{ url_for('auth.show_forgot_password_page') }}"
-              class="font-medium text-rose-600 hover:text-rose-500">
-              Quên mật khẩu?
-            </a>
-          </div>
-
-          <button type="submit"
-            class="w-full rounded-lg bg-rose-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-300">
-            Đăng nhập
-          </button>
-        </form>
-
-        <div class="mt-6 flex items-center gap-4 text-xs text-slate-500">
-          <div class="h-px flex-1 bg-rose-200"></div>
-          Hoặc đăng nhập nhanh
-          <div class="h-px flex-1 bg-rose-200"></div>
-        </div>
-
-        <div class="mt-4 grid gap-3 sm:grid-cols-2">
-          <button type="button"
-            class="flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-rose-50">
-            <svg class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
-              <path fill="#EA4335"
-                d="M24 22.5v6.6h9.4c-.4 2.4-2.9 7-9.4 7-5.7 0-10.3-4.7-10.3-10.5S18.3 15.1 24 15.1c3.2 0 5.3 1.4 6.5 2.6l4.4-4.3C32.3 10.8 28.5 9 24 9 14.9 9 7.6 16.3 7.6 25.6S14.9 42.1 24 42.1c9.4 0 15.6-6.6 15.6-15.8 0-1.1-.1-2-.3-2.8H24z" />
-              <path fill="#FBBC05"
-                d="M10.7 19.5l5.4 4c1.5-3 4.4-5 7.9-5 3.2 0 5.3 1.4 6.5 2.6l4.4-4.3C32.3 10.8 28.5 9 24 9c-6.1 0-11.4 3-13.9 7.5z" />
-              <path fill="#34A853"
-                d="M24 42.1c4.5 0 8.3-1.5 11.1-4.1l-5.1-3.9c-1.4 1-3.3 1.7-6 1.7-4.5 0-8.3-3-9.7-7.1l-5.2 4c2.5 4.6 7.8 9.4 14.9 9.4z" />
-              <path fill="#4285F4"
-                d="M39.3 26.3c0-1.1-.1-2-.3-2.8H24v6.6h9.4c-.5 2.6-2.4 4.8-5.1 6.1l5.1 3.9c3-2.8 6-7 6-13.8z" />
-            </svg>
-            Google
-          </button>
-          <button type="button"
-            class="flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-rose-50">
-            <svg class="h-5 w-5 text-blue-600" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="currentColor"
-                d="M22.675 0h-21.35C.597 0 0 .597 0 1.326v21.348C0 23.403.597 24 1.326 24h11.495v-9.294H9.692v-3.622h3.129V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24h-1.918c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.403 24 24 23.403 24 22.674V1.326C24 .597 23.403 0 22.675 0z" />
-            </svg>
-            Facebook
-          </button>
-        </div>
-
-        <p class="mt-6 text-center text-sm text-slate-600">
-          Chưa có tài khoản?
-          <a href="{{ url_for('auth.show_sign_up_page') }}" class="font-semibold text-rose-600 hover:text-rose-500">Tạo
-            tài khoản</a>
-        </p>
-      </section>
+{% block content %}
+<div class="mx-auto flex min-h-[70vh] w-full max-w-5xl items-center justify-center py-8">
+  <div class="grid w-full items-center gap-10 lg:grid-cols-2">
+    <div class="hidden lg:block">
+      <p class="text-sm font-semibold uppercase tracking-[0.3em] text-rose-500">Chào mừng trở lại</p>
+      <h1 class="mt-4 text-4xl font-semibold text-slate-900">Đăng nhập để tiếp tục mua sắm</h1>
+      <p class="mt-4 text-base text-slate-600">Khám phá bộ sưu tập trang sức mới và ưu đãi độc quyền.</p>
+      <div class="mt-6 flex gap-3 text-sm text-slate-500">
+        <span class="rounded-full bg-rose-50 px-3 py-1 font-semibold text-rose-600">Miễn phí vận chuyển</span>
+        <span class="rounded-full bg-slate-100 px-3 py-1 font-semibold">Thanh toán an toàn</span>
+      </div>
     </div>
+
+    <section class="rounded-2xl bg-white p-8 shadow-lg ring-1 ring-rose-100">
+      <div>
+        <h2 class="text-2xl font-semibold text-slate-900">Đăng nhập</h2>
+        <p class="mt-2 text-sm text-slate-600">Nhập thông tin của bạn để truy cập tài khoản.</p>
+      </div>
+
+      <form class="mt-6 space-y-5">
+        <div>
+          <label for="email" class="text-sm font-medium text-slate-700">Email</label>
+          <div class="mt-2">
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@email.com"
+              pattern="^[A-Za-z0-9._%+-]+@(gmail|hotmail|yahoo|outlook)\.com(\.vn)?$"
+              title="Email phải thuộc gmail, hotmail, yahoo hoặc outlook (ví dụ: ten@gmail.com)"
+              class="w-full rounded-lg border border-rose-200 bg-rose-50/60 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+              required />
+          </div>
+        </div>
+
+        <div>
+          <label for="password" class="text-sm font-medium text-slate-700">Mật khẩu</label>
+          <div class="relative mt-2">
+            <input id="password" name="password" type="password" autocomplete="current-password"
+              placeholder="Nhập mật khẩu" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+              title="Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt"
+              class="w-full rounded-lg border border-rose-200 bg-rose-50/60 px-4 py-2.5 pr-11 text-sm text-slate-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+              required />
+            <button type="button" id="toggle-password" aria-label="Hiện mật khẩu"
+              class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-rose-500 transition hover:bg-rose-100/70">
+              <svg id="icon-eye" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2.5 12s3.6-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.6 6.5-9.5 6.5S2.5 12 2.5 12Z"
+                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+              <svg id="icon-eye-off" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M3.5 5.5 20.5 18.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                <path
+                  d="M10.4 6.3A9.6 9.6 0 0 1 12 6c5.9 0 9.5 6 9.5 6a15.3 15.3 0 0 1-4.5 4.9M6.6 8.1A15.6 15.6 0 0 0 2.5 12s3.6 6 9.5 6a9.7 9.7 0 0 0 4.3-1"
+                  stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M9.8 9.8a3.2 3.2 0 0 0 4.4 4.4" stroke="currentColor" stroke-width="1.6"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <label class="flex items-center gap-2 text-slate-600">
+            <input type="checkbox" class="h-4 w-4 rounded border-rose-300 text-rose-500 focus:ring-rose-400" />
+            Ghi nhớ đăng nhập
+          </label>
+          <a href="{{ url_for('auth.show_forgot_password_page') }}"
+            class="font-medium text-rose-600 hover:text-rose-500">
+            Quên mật khẩu?
+          </a>
+        </div>
+
+        <button type="submit"
+          class="w-full rounded-lg bg-rose-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-300">
+          Đăng nhập
+        </button>
+      </form>
+
+      <div class="mt-6 flex items-center gap-4 text-xs text-slate-500">
+        <div class="h-px flex-1 bg-rose-200"></div>
+        Hoặc đăng nhập nhanh
+        <div class="h-px flex-1 bg-rose-200"></div>
+      </div>
+
+      <div class="mt-4 grid gap-3 sm:grid-cols-2">
+        <button type="button"
+          class="flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-rose-50">
+          <svg class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335"
+              d="M24 22.5v6.6h9.4c-.4 2.4-2.9 7-9.4 7-5.7 0-10.3-4.7-10.3-10.5S18.3 15.1 24 15.1c3.2 0 5.3 1.4 6.5 2.6l4.4-4.3C32.3 10.8 28.5 9 24 9 14.9 9 7.6 16.3 7.6 25.6S14.9 42.1 24 42.1c9.4 0 15.6-6.6 15.6-15.8 0-1.1-.1-2-.3-2.8H24z" />
+            <path fill="#FBBC05"
+              d="M10.7 19.5l5.4 4c1.5-3 4.4-5 7.9-5 3.2 0 5.3 1.4 6.5 2.6l4.4-4.3C32.3 10.8 28.5 9 24 9c-6.1 0-11.4 3-13.9 7.5z" />
+            <path fill="#34A853"
+              d="M24 42.1c4.5 0 8.3-1.5 11.1-4.1l-5.1-3.9c-1.4 1-3.3 1.7-6 1.7-4.5 0-8.3-3-9.7-7.1l-5.2 4c2.5 4.6 7.8 9.4 14.9 9.4z" />
+            <path fill="#4285F4"
+              d="M39.3 26.3c0-1.1-.1-2-.3-2.8H24v6.6h9.4c-.5 2.6-2.4 4.8-5.1 6.1l5.1 3.9c3-2.8 6-7 6-13.8z" />
+          </svg>
+          Google
+        </button>
+        <button type="button"
+          class="flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-rose-50">
+          <svg class="h-5 w-5 text-blue-600" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor"
+              d="M22.675 0h-21.35C.597 0 0 .597 0 1.326v21.348C0 23.403.597 24 1.326 24h11.495v-9.294H9.692v-3.622h3.129V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24h-1.918c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.403 24 24 23.403 24 22.674V1.326C24 .597 23.403 0 22.675 0z" />
+          </svg>
+          Facebook
+        </button>
+      </div>
+
+      <p class="mt-6 text-center text-sm text-slate-600">
+        Chưa có tài khoản?
+        <a href="{{ url_for('auth.show_sign_up_page') }}" class="font-semibold text-rose-600 hover:text-rose-500">Tạo tài
+          khoản</a>
+      </p>
+    </section>
   </div>
+</div>
+{% endblock %}
 
-  <!-- Ẩn và hiện mật khẩu -->
-  <script>
-    gglePassword = document.getElementById("toggle-password");
-    sswordInput = document.getElementById("password");
-    onEye = document.getElementById("icon-eye");
-    onEyeOff = document.getElementById("icon-eye-off");
+{% block scripts %}
+<script>
+  const togglePassword = document.getElementById("toggle-password");
+  const passwordInput = document.getElementById("password");
+  const iconEye = document.getElementById("icon-eye");
+  const iconEyeOff = document.getElementById("icon-eye-off");
 
-    ssword?.addEventListener("click", () => {
-      Hidden = passwordInput.type === "password";
-      Input.type = isHidden ? "text" : "password";
-      classList.toggle("hidden", !isHidden);
-      ff.classList.toggle("hidden", isHidden);
-      ssword.setAttribute("aria-label", isHidden ? "Ẩn mật khẩu" : "Hiện mật khẩu");
-    });
-  </script>
-
-</body>
-
-</html>
+  togglePassword?.addEventListener("click", () => {
+    const isHidden = passwordInput.type === "password";
+    passwordInput.type = isHidden ? "text" : "password";
+    iconEye.classList.toggle("hidden", !isHidden);
+    iconEyeOff.classList.toggle("hidden", isHidden);
+    togglePassword.setAttribute("aria-label", isHidden ? "Ẩn mật khẩu" : "Hiện mật khẩu");
+  });
+</script>
+{% endblock %}
