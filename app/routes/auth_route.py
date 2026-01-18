@@ -8,16 +8,16 @@ auth_bp = Blueprint(
 )
 
 
-@auth_bp.route("/sign-in")
+@auth_bp.route("/sign-in", methods=["GET", "POST"])
 def show_sign_in_page():
     return render_template("auth/sign_in.html")
 
 
-@auth_bp.route("/sign-up")
+@auth_bp.route("/sign-up", methods=["GET", "POST"])
 def show_sign_up_page():
     return render_template("auth/sign_up.html")
 
 
-@auth_bp.route("/forgot-password")
+@auth_bp.route("/forgot-password", methods=["GET", "POST"])
 def show_forgot_password_page():
     return render_template("auth/forgot_password.html")
