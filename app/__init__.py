@@ -21,9 +21,11 @@ def create_app():
     # Import các Blueprint vào Factory function.
     from app.routes.main_route import main_bp
     from app.routes.product_route import product_bp
+    from app.routes.auth_route import auth_bp
 
     # Đăng ký các Blueprint bên trên.
     app.register_blueprint(main_bp)
     app.register_blueprint(product_bp)
+    app.register_blueprint(auth_bp)
 
     return app
