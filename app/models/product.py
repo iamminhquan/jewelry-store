@@ -2,7 +2,7 @@ from app.extensions import db
 from datetime import datetime
 
 
-class Products(db.Model):
+class Product(db.Model):
     __tablename__ = "SanPham"
 
     ma_san_pham = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -13,9 +13,10 @@ class Products(db.Model):
     gia_xuat = db.Column(db.Numeric(10, 2), nullable=False)
 
     trong_luong = db.Column(db.Float, nullable=False)
-    kich_thuoc = db.Column(db.Float, nullable=False)
+    ma_kich_thuoc = db.Column(db.Float, nullable=False)
 
     gioi_tinh = db.Column(db.SmallInteger, nullable=False)
+
     so_luong = db.Column(db.Integer, nullable=False)
 
     don_vi_tinh = db.Column(db.String(256), nullable=False)
@@ -30,12 +31,12 @@ class Products(db.Model):
         db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
-    # Khóa ngoại (tạm thời để INT, lát có FK sẽ sửa)
-    hinh_anh = db.Column(db.Integer, nullable=True)
-    ma_danh_muc = db.Column(db.Integer, nullable=True)
-    loai_san_pham = db.Column(db.Integer, nullable=True)
-    bo_suu_tap = db.Column(db.Integer, nullable=True)
-    thuong_hieu = db.Column(db.Integer, nullable=True)
+    hinh_anhs = db.relationship(
+        "ProductImage",
+        back_populates="san_pham",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
     def __repr__(self):
         return f"<SanPham {self.ma_san_pham} - {self.ten_san_pham}>"
