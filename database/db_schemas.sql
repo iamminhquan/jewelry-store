@@ -20,6 +20,15 @@ CREATE TABLE
         thuong_hieu INT
     );
 
+
+CREATE TABLE
+    KichThuocSanPham (
+        ma_kich_thuoc_san_pham INT PRIMARY KEY AUTO_INCREMENT,
+        ma_san_pham INT NOT NULL,
+        ten_kich_thuoc FLOAT NOT NULL,
+        so_luong INT NOT NULL DEFAULT 0
+    );
+
 CREATE TABLE
     HinhAnhSanPham (
         ma_hinh_anh INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
@@ -57,6 +66,7 @@ CREATE TABLE
     LoaiSanPham (
         ma_loai_san_pham INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
         ten_loai_san_pham VARCHAR(256) NOT NULL,
+	ma_danh_muc INT NOT NULL,
         slug VARCHAR(256)
     );
 
@@ -162,13 +172,4 @@ CREATE TABLE
         don_gia DECIMAL(10, 2),
         thanh_tien DECIMAL(10, 2),
         ngay_tao DATETIME
-    );
-
-
-CREATE TABLE
-    KichThuocSanPham (
-        ma_kich_thuoc_san_pham INT PRIMARY KEY AUTO_INCREMENT,
-        ma_san_pham INT NOT NULL,
-        ten_kich_thuoc VARCHAR(256) NOT NULL,
-        so_luong INT NOT NULL DEFAULT 0
     );
