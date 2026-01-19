@@ -1,14 +1,199 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adminstrator dashboard | Jewelry Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <h1>Đây là trang admin</h1>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+        <!-- người chỉnh sửa: Nguyễn Thái Nguyên
+      ngày chỉnh sửa: 17/01/2026
+      nội dung: chỉnh sửa giao diện và link các trang quản trị với nhau -->
+
+        <!--thanh dash dashbord phía ngoài bên trái - gọi lại giao diện thanh dashboard-->
+        {% include "layout_admin/aside_dashboard.html" %}
+
+        <!--chứa header và main-->
+        <div class="flex flex-1 flex-col">
+            <!--header tổng quan quản trị xuất báo, tạo đơn hàng,...-->
+            <header
+                class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4">
+                <div>
+                    <h1 class="text-xl font-semibold text-slate-900">Tổng quan quản trị</h1>
+                </div>
+                <div class="flex flex-1 flex-wrap items-center justify-end gap-3">
+                    <div class="relative w-full max-w-xs">
+                        <input type="search" placeholder="Tìm đơn hàng, sản phẩm..."
+                            class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-3 text-sm text-slate-700 outline-none transition focus:border-rose-300 focus:ring-2 focus:ring-rose-100" />
+                        <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24"
+                            fill="none" aria-hidden="true">
+                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6" />
+                            <path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <button
+                        class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+                        Xuất báo cáo
+                    </button>
+                    <button class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600">
+                        Tạo đơn hàng
+                    </button>
+                </div>
+            </header>
+
+            <!--nội dung chính của trang quản trị tổng quan-->
+            <main class="flex-1 space-y-8 px-6 py-6">
+                <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+                        <p class="text-sm text-slate-500">Doanh thu hôm nay</p>
+                        <p class="mt-2 text-2xl font-semibold text-slate-900">₫128.500.000</p>
+                        <p class="mt-2 text-xs text-emerald-600">+12.4% so với hôm qua</p>
+                    </div>
+                    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+                        <p class="text-sm text-slate-500">Đơn hàng mới</p>
+                        <p class="mt-2 text-2xl font-semibold text-slate-900">248</p>
+                        <p class="mt-2 text-xs text-rose-600">32 đơn chờ xử lý</p>
+                    </div>
+                    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+                        <p class="text-sm text-slate-500">Tỷ lệ chuyển đổi</p>
+                        <p class="mt-2 text-2xl font-semibold text-slate-900">4.6%</p>
+                        <p class="mt-2 text-xs text-emerald-600">+0.6% tuần này</p>
+                    </div>
+                    <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
+                        <p class="text-sm text-slate-500">Khách hàng mới</p>
+                        <p class="mt-2 text-2xl font-semibold text-slate-900">89</p>
+                        <p class="mt-2 text-xs text-slate-500">Từ chiến dịch Valentine</p>
+                    </div>
+                </section>
+
+                <section class="grid gap-6 lg:grid-cols-3">
+                    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100 lg:col-span-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">Đơn hàng mới nhất</h2>
+                                <p class="mt-1 text-xs text-slate-500">Xem nhanh các đơn cần xử lý</p>
+                            </div>
+                            <a href="orders.html" class="text-sm font-medium text-rose-600 hover:text-rose-500">Đi tới
+                                đơn hàng</a>
+                        </div>
+                        <div class="mt-4 space-y-3 text-sm text-slate-600">
+                            <div class="flex items-center justify-between rounded-xl border border-slate-100 p-3">
+                                <div>
+                                    <p class="font-medium text-slate-900">#OD-2102 · Minh Anh</p>
+                                    <p class="text-xs text-slate-500">₫8.900.000 · Website</p>
+                                </div>
+                                <span class="rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-600">Đang
+                                    xử lý</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-xl border border-slate-100 p-3">
+                                <div>
+                                    <p class="font-medium text-slate-900">#OD-2103 · Hà Phương</p>
+                                    <p class="text-xs text-slate-500">₫5.200.000 · Cửa hàng</p>
+                                </div>
+                                <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600">Chờ
+                                    thanh toán</span>
+                            </div>
+                            <div class="flex items-center justify-between rounded-xl border border-slate-100 p-3">
+                                <div>
+                                    <p class="font-medium text-slate-900">#OD-2104 · Khánh Chi</p>
+                                    <p class="text-xs text-slate-500">₫3.450.000 · Live chat</p>
+                                </div>
+                                <span
+                                    class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600">Hoàn
+                                    tất</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">Cảnh báo tồn kho</h2>
+                                <p class="mt-1 text-xs text-slate-500">Sản phẩm sắp hết</p>
+                            </div>
+                            <a href="products.html" class="text-sm font-medium text-rose-600 hover:text-rose-500">Quản
+                                lý kho</a>
+                        </div>
+                        <div class="mt-4 space-y-4 text-sm text-slate-600">
+                            <div class="flex items-center justify-between">
+                                <span>Dây chuyền Pearl</span>
+                                <span class="font-semibold text-amber-600">8</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Vòng tay Ruby</span>
+                                <span class="font-semibold text-amber-600">6</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Bông tai Blossom</span>
+                                <span class="font-semibold text-rose-600">0</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 rounded-xl border border-rose-100 bg-rose-50/70 p-4 text-xs text-slate-600">
+                            Ưu tiên nhập thêm 12 mặt hàng trong tuần này.
+                        </div>
+                    </div>
+                </section>
+
+                <section class="grid gap-6 lg:grid-cols-2">
+                    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">Khách hàng nổi bật</h2>
+                                <p class="mt-1 text-xs text-slate-500">Nhóm VIP và khách mới</p>
+                            </div>
+                            <a href="customers.html" class="text-sm font-medium text-rose-600 hover:text-rose-500">Xem
+                                chi tiết</a>
+                        </div>
+                        <div class="mt-4 space-y-4 text-sm text-slate-600">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-slate-900">Linh Phương</p>
+                                    <p class="text-xs text-slate-500">VIP · 12 đơn · ₫72.000.000</p>
+                                </div>
+                                <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600">Ưu
+                                    tiên</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-slate-900">Khánh Chi</p>
+                                    <p class="text-xs text-slate-500">Mới · 1 đơn · ₫4.200.000</p>
+                                </div>
+                                <span
+                                    class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">Mới</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h2 class="text-base font-semibold text-slate-900">Khuyến mãi đang chạy</h2>
+                                <p class="mt-1 text-xs text-slate-500">Theo dõi chiến dịch nổi bật</p>
+                            </div>
+                            <a href="promotions.html" class="text-sm font-medium text-rose-600 hover:text-rose-500">Quản
+                                lý</a>
+                        </div>
+                        <div class="mt-4 space-y-3 text-sm text-slate-600">
+                            <div class="rounded-xl border border-rose-100 bg-rose-50/70 p-4">
+                                <p class="font-semibold text-slate-900">Valentine 2026</p>
+                                <p class="mt-1 text-xs text-slate-500">Giảm 15% vòng tay & nhẫn</p>
+                                <p class="mt-3 text-xs text-rose-600">Còn 5 ngày</p>
+                            </div>
+                            <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-4">
+                                <p class="font-semibold text-slate-900">Member Day</p>
+                                <p class="mt-1 text-xs text-slate-500">Ưu đãi 10% cho khách VIP</p>
+                                <p class="mt-3 text-xs text-slate-500">Còn 12 ngày</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+        </div>
+
+    </div>
 </body>
 
 </html>
