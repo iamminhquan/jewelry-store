@@ -1,0 +1,290 @@
+<!-- người chỉnh sửa: Nguyễn Thái Nguyên
+thời gian chỉnh sửa: 17/01/2025
+nội dung: chỉnh sửa điều hướng và các chức năng liên quan đến trang -->
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Danh Mục | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+      <!--thanh dash dashbord phía ngoài bên trái - gọi lại giao diện thanh dashboard-->
+      {% include "layout_admin/aside_dashboard.html" %}
+      <!--chứa header và main-->
+      <div class="flex flex-1 flex-col">
+        <header
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <a href="{{ url_for('category.show_all_category') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                QUẢN LÝ DANH MỤC
+              </h1>
+            </a>
+
+            <p class="text-sm text-slate-500">
+              Thêm, sửa, xoá, tra cứu danh mục
+            </p>
+          </div>
+          <div class="flex flex-1 flex-wrap items-center justify-end gap-3">
+            <div class="relative w-full max-w-xs">
+              <!--nơi tra cứu danh mục-->
+              <form method="get">
+                <div class="relative w-full max-w-xs">
+                  <input
+                    type="search"
+                    name="keyword"
+                    placeholder="Tìm tên hoặc mã danh mục..."
+                    value="{{ request.args.get('keyword', '') }}"
+                    class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-3 text-sm"
+                  />
+                </div>
+              </form>
+              <!--ket thuc noi tra cứu danh mục-->
+              <svg
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                />
+                <path
+                  d="m20 20-3.5-3.5"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+
+            <a
+              href="{{ url_for('category.create_category') }}"
+              class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+            >
+              Thêm danh mục
+            </a>
+          </div>
+        </header>
+
+        <main class="flex-1 space-y-6 px-6 py-6">
+          <!--thống kê nhanh-->
+          <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Tổng danh mục</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{total_categories}}
+              </p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Đang kinh doanh</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{con_hang}}
+              </p>
+              <p class="mt-2 text-xs text-rose-600">Không nhập thêm</p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Ngừng kinh doanh</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{het_hang}}
+              </p>
+              <p class="mt-2 text-xs text-rose-600">Ưu tiên nhập thêm</p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Danh mục</p>
+              <p class="mt-2 text-xl font-semibold text-slate-900">
+                {{ten_dm_noi_bat}}
+              </p>
+              <p class="mt-2 text-xs text-slate-500">Các danh mục nổi bật</p>
+            </div>
+          </section>
+
+          <!--danh sách danh mục-->
+          <section
+            class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          >
+            <h2 class="text-base font-semibold text-slate-900">
+              Danh sách danh mục
+            </h2>
+            <div class="flex flex-wrap gap-2 text-sm">
+              <a
+                href="{{ url_for('category.show_all_category') }}"
+                class="rounded-lg px-3 py-1.5 {% if not request.args.get('status') %} border border-rose-200 bg-rose-50 text-rose-600 {% else %} border border-slate-200 text-slate-600 hover:bg-slate-50 {% endif %}"
+              >
+                Tất cả
+              </a>
+
+              <a
+                href="{{ url_for('category.show_all_category', status=1) }}"
+                class="rounded-lg px-3 py-1.5 {% if request.args.get('status') == '1' %} border border-rose-200 bg-rose-50 text-rose-600 {% else %} border border-slate-200 text-slate-600 hover:bg-slate-50 {% endif %}"
+              >
+                Đang kinh doanh
+              </a>
+
+              <a
+                href="{{ url_for('category.show_all_category', status=2) }}"
+                class="rounded-lg px-3 py-1.5 {% if request.args.get('status') == '2' %} border border-rose-200 bg-rose-50 text-rose-600 {% else %} border border-slate-200 text-slate-600 hover:bg-slate-50 {% endif %}"
+              >
+                Ngừng kinh doanh
+              </a>
+
+              <a
+                href="{{ url_for('category.show_all_category', status=3) }}"
+                class="rounded-lg px-3 py-1.5 {% if request.args.get('status') == '3' %} border border-rose-200 bg-rose-50 text-rose-600 {% else %} border border-slate-200 text-slate-600 hover:bg-slate-50 {% endif %}"
+              >
+                Đã xoá
+              </a>
+            </div>
+
+            <div class="mt-4 overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="text-left text-xs uppercase text-slate-400">
+                  <tr>
+                    <th class="pb-3 font-medium">Mã danh mục</th>
+                    <th class="pb-3 font-medium">Tên danh mục</th>
+                    <th class="pb-3 font-medium">Mô tả</th>
+                    <th class="pb-3 font-medium">Trạng thái</th>
+                    <th class="pb-3 font-medium">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody class="text-slate-600">
+                  {% if categories %} {% for c in categories %}
+                  <tr class="border-b">
+                    <td class="py-3">{{ c.ma_danh_muc }}</td>
+                    <td class="py-3 font-medium text-slate-900">
+                      {{ c.ten_danh_muc }}
+                    </td>
+                    <td class="py-3">{{ c.mo_ta or "-" }}</td>
+                    <td class="py-3">
+                      {% if c.trang_thai == 1 %}
+                      <span
+                        class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600"
+                      >
+                        Đang kinh doanh
+                      </span>
+                      {% else %}
+                      <span
+                        class="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600"
+                      >
+                        Ngừng kinh doanh
+                      </span>
+                      {% endif %}
+                    </td>
+                    <!--nút sửa xoá-->
+                    <td class="py-3">
+                      <!--sửa-->
+                      <a
+                        href="{{ url_for('category.edit_category', id=c.ma_danh_muc) }}"
+                        class="rounded-lg border border-blue-200 px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50"
+                      >
+                        Sửa
+                      </a>
+                      <!--xoá-->
+                      <form
+                        method="post"
+                        action="{{ url_for('category.delete_category', id=c.ma_danh_muc) }}"
+                        onsubmit="
+                          return confirm(
+                            'Bạn có chắc muốn xoá danh mục này không?'
+                          );
+                        "
+                        class="inline"
+                      >
+                        <button
+                          type="submit"
+                          class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50"
+                        >
+                          Xoá
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td colspan="5" class="py-6 text-center text-slate-400">
+                      Chưa có danh mục nào được thêm vào.
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+            <!--chỉnh phân trang-->
+            <div
+              class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600"
+            >
+              <p>
+                Hiển thị từ {{ pagination.page * pagination.per_page -
+                pagination.per_page + 1 }} - {{ pagination.page *
+                pagination.per_page if pagination.page * pagination.per_page <
+                pagination.total else pagination.total }} trong {{
+                pagination.total }} danh mục
+              </p>
+
+              <div class="flex items-center gap-1">
+                <!-- Previous -->
+                {% if pagination.has_prev %}
+                <a
+                  href="{{ url_for('category.show_all_category', page=pagination.prev_num, status=request.args.get('status'), keyword=request.args.get('keyword')) }}"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50"
+                >
+                  Trước
+                </a>
+                {% endif %}
+
+                <!-- Page numbers -->
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1,
+                left_current=1, right_current=1) %} {% if p %} {% if p ==
+                pagination.page %}
+                <span
+                  class="rounded-lg bg-rose-500 px-3 py-1.5 font-medium text-white"
+                >
+                  {{ p }}
+                </span>
+                {% else %}
+                <a
+                  href="{{ url_for('category.show_all_category', page=p, status=request.args.get('status'), keyword=request.args.get('keyword')) }}"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50"
+                >
+                  {{ p }}
+                </a>
+                {% endif %} {% else %}
+                <span class="px-2 text-slate-400">…</span>
+                {% endif %} {% endfor %}
+
+                <!-- Next -->
+                {% if pagination.has_next %}
+                <a
+                  href="{{ url_for('category.show_all_category', page=pagination.next_num, status=request.args.get('status'), keyword=request.args.get('keyword')) }}"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50"
+                >
+                  Sau
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

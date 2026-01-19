@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quản lý đơn hàng | Jewelry Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+      {% include "layout_admin/aside_dashboard.html" %}
+
+      <div class="flex flex-1 flex-col">
+        <!-- HEADER -->
+        <header
+          class="flex items-center justify-between border-b bg-white px-6 py-4"
+        >
+          <div>
+            <h1 class="text-xl font-semibold">Quản lý đơn hàng</h1>
+            <p class="text-sm text-slate-500">
+              Theo dõi trạng thái và xử lý đơn
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- SEARCH -->
+            <form
+              method="get"
+              action="{{ url_for('admin_order.index') }}"
+              class="relative"
+            >
+              <input
+                type="text"
+                name="keyword"
+                value="{{ request.args.get('keyword','') }}"
+                placeholder="Tìm mã đơn, khách hàng..."
+                class="w-64 rounded-lg border px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-200"
+              />
+            </form>
+
+            <!-- EXPORT -->
+            <div class="flex gap-2">
+              <a
+                href="{{ url_for('admin_order.export', type='pdf') }}"
+                class="rounded-lg border px-3 py-2 text-sm hover:bg-slate-50"
+              >
+                Xuất PDF
+              </a>
+              <a
+                href="{{ url_for('admin_order.export', type='excel') }}"
+                class="rounded-lg border px-3 py-2 text-sm hover:bg-slate-50"
+              >
+                Xuất Excel
+              </a>
+            </div>
+
+            <!-- CREATE -->
+            <a
+              href="{{ url_for('admin_order.create') }}"
+              class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+            >
+              Tạo đơn mới
+            </a>
+          </div>
+        </header>
+
+        <!-- MAIN -->
+        <main class="flex-1 px-6 py-6">
+          <!-- STATS -->
+          <section class="grid grid-cols-4 gap-4 mb-6">
+            <div class="rounded-xl bg-white p-4 shadow">
+              <p class="text-sm text-slate-500">Đơn hôm nay</p>
+              <p class="text-2xl font-semibold">248</p>
+            </div>
+            <div class="rounded-xl bg-white p-4 shadow">
+              <p class="text-sm text-slate-500">Hoàn tất</p>
+              <p class="text-2xl font-semibold text-emerald-600">186</p>
+            </div>
+            <div class="rounded-xl bg-white p-4 shadow">
+              <p class="text-sm text-slate-500">Đơn huỷ</p>
+              <p class="text-2xl font-semibold text-rose-600">12</p>
+            </div>
+            <div class="rounded-xl bg-white p-4 shadow">
+              <p class="text-sm text-slate-500">Giá trị TB</p>
+              <p class="text-2xl font-semibold">₫6.2M</p>
+            </div>
+          </section>
+
+          <!-- TABLE -->
+          <section class="rounded-2xl bg-white p-6 shadow">
+            <h2 class="mb-4 text-base font-semibold">Danh sách đơn hàng</h2>
+
+            <table class="w-full text-sm">
+              <thead class="border-b text-slate-500">
+                <tr>
+                  <th class="py-2 text-left">MÃ ĐƠN</th>
+                  <th class="text-left">KHÁCH HÀNG</th>
+                  <th class="text-left">GIÁ TRỊ</th>
+                  <th class="text-left">TRẠNG THÁI</th>
+                  <th class="text-left">NGÀY</th>
+                  <th class="text-center">HÀNH ĐỘNG</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y">
+                {% for p in products %}
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-3">{{ p.ma_don_hang }}</td>
+                  <td class="px-4 py-3">{{ p.ma_tai_khoan }}</td>
+                  <td class="px-4 py-3">{{ p.ma_san_pham }}</td>
+                  <td class="px-4 py-3 text-center">{{ p.so_luong }}</td>
+                  <td class="px-4 py-3 text-right">
+                    {{ "{:,.0f}".format(p.don_gia) }} đ
+                  </td>
+                  <td class="px-4 py-3 text-right font-semibold text-rose-500">
+                    {{ "{:,.0f}".format(p.thanh_tien) }} đ
+                  </td>
+                  <td class="px-4 py-3 text-center">{{ p.ngay_dat_hang }}</td>
+                  <td class="px-4 py-3 text-center">
+                    <span
+                      class="rounded-full bg-yellow-100 px-3 py-1 text-xs text-yellow-700"
+                    >
+                      Chờ xử lý
+                    </span>
+                  </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="8" class="px-4 py-6 text-center text-slate-400">
+                    Chưa có sản phẩm nào
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+            <!-- PAGINATION -->
+            <div
+              class="mt-6 flex items-center justify-between text-sm text-slate-600"
+            >
+              <p>
+                Hiển thị {{ pagination.first }} - {{ pagination.last }} trong {{
+                pagination.total }} đơn
+              </p>
+
+              <div class="flex gap-1">
+                {% if pagination.has_prev %}
+                <a
+                  href="{{ url_for('admin_order.index', page=pagination.prev_num) }}"
+                  class="rounded-lg border px-3 py-1"
+                  >Trước</a
+                >
+                {% endif %} {% for p in pagination.iter_pages() %} {% if p %} {%
+                if p == pagination.page %}
+                <span class="rounded-lg bg-rose-500 px-3 py-1 text-white"
+                  >{{ p }}</span
+                >
+                {% else %}
+                <a
+                  href="{{ url_for('admin_order.index', page=p) }}"
+                  class="rounded-lg border px-3 py-1"
+                  >{{ p }}</a
+                >
+                {% endif %} {% endif %} {% endfor %} {% if pagination.has_next
+                %}
+                <a
+                  href="{{ url_for('admin_order.index', page=pagination.next_num) }}"
+                  class="rounded-lg border px-3 py-1"
+                  >Sau</a
+                >
+                {% endif %}
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
