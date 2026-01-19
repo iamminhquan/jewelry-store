@@ -1,6 +1,7 @@
 from app.extensions import db
 
-SanPham__ChatLieu = db.Table(
+
+Product__Material = db.Table(
     "SanPham__ChatLieu",
     db.Column(
         "ma_san_pham",
