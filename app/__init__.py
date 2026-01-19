@@ -1,6 +1,8 @@
 from flask import Flask
+
 from app.config import Config
 from app.extensions import db
+from app.extensions import migrate
 
 
 def create_app():
@@ -18,14 +20,19 @@ def create_app():
     # Kết nối đến Cơ sở dữ liệu.
     db.init_app(app)
 
+    # Manage migration.
+    migrate.init_app(app, db)
+
     # Import các Blueprint vào Factory function.
     from app.routes.main_route import main_bp
     from app.routes.product_route import product_bp
     from app.routes.auth_route import auth_bp
+    from app.routes.admin_route import admin_route
 
     # Đăng ký các Blueprint bên trên.
     app.register_blueprint(main_bp)
     app.register_blueprint(product_bp)
     app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_route)
 
     return app
