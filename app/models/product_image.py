@@ -20,7 +20,7 @@ class ProductImage(db.Model):
 
     ngay_tao = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    san_pham = db.relationship("Products", back_populates="hinh_anhs")
+    san_pham = db.relationship("Product", back_populates="hinh_anhs")
 
     def __repr__(self):
         return f"<HinhAnhSanPham {self.ma_hinh_anh} - SP {self.ma_san_pham}>"

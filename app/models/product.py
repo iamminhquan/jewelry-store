@@ -14,7 +14,7 @@ class Product(db.Model):
     gia_xuat = db.Column(db.Numeric(10, 2), nullable=False)
 
     trong_luong = db.Column(db.Float, nullable=False)
-    kich_thuoc = db.Column(db.Float, nullable=False)
+    ma_kich_thuoc = db.Column(db.Float, nullable=False)
 
     gioi_tinh = db.Column(db.SmallInteger, nullable=False)
     so_luong = db.Column(db.Integer, nullable=False)
