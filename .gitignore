@@ -10,6 +10,9 @@ node_modules/
 ### Static Images
 .app/static/images/*
 
+### Static Files
+./app/static/css/*
+
 ### Flask ###
 instance/*
 !instance/.gitignore
