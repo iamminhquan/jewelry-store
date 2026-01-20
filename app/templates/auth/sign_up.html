@@ -11,11 +11,30 @@
         <p class="mt-2 text-sm text-slate-600">Gia nhập cộng đồng yêu trang sức ngay hôm nay.</p>
       </div>
 
-      <form class="mt-6 space-y-5">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mt-4 space-y-2 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+            {% for category, message in messages %}
+              <p>{{ message }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form class="mt-6 space-y-5" action="{{ url_for('auth.show_sign_up_page') }}" method="post">
+        <div>
+          <label for="username" class="text-sm font-medium text-slate-700">Tên đăng nhập</label>
+          <div class="mt-2">
+            <input id="username" name="username" type="text" autocomplete="username" placeholder="Tên đăng nhập"
+              class="w-full rounded-lg border border-rose-200 bg-rose-50/60 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
+              required />
+          </div>
+        </div>
+
         <div>
           <label for="full-name" class="text-sm font-medium text-slate-700">Họ và tên</label>
           <div class="mt-2">
-            <input id="full-name" name="full-name" type="text" autocomplete="name" placeholder="Nhập tên của bạn"
+            <input id="full-name" name="full_name" type="text" autocomplete="name" placeholder="Nhập tên của bạn"
               class="w-full rounded-lg border border-rose-200 bg-rose-50/60 px-4 py-2.5 text-sm text-slate-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
               required />
           </div>
@@ -72,7 +91,7 @@
         <div>
           <label for="confirm-password" class="text-sm font-medium text-slate-700">Xác nhận mật khẩu</label>
           <div class="relative mt-2">
-            <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password"
+            <input id="confirm-password" name="confirm_password" type="password" autocomplete="new-password"
               placeholder="Nhập lại mật khẩu"
               class="w-full rounded-lg border border-rose-200 bg-rose-50/60 px-4 py-2.5 pr-11 text-sm text-slate-800 outline-none transition focus:border-rose-400 focus:ring-2 focus:ring-rose-100"
               required />
