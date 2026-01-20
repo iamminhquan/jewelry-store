@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash
 
+from app.decorators import admin_required
 from app.services.invoice_service import (
     create_invoice,
     get_invoice_or_404,
@@ -20,6 +21,7 @@ invoice_bp = Blueprint(
 
 
 @invoice_bp.route("/", methods=["GET"])
+@admin_required
 def show_invoice_page():
     """Hiển thị trang quản lý hóa đơn kèm lọc và phân trang.
 
@@ -66,6 +68,7 @@ def show_invoice_page():
 
 
 @invoice_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def show_create_invoice_page():
     """Tạo mới hóa đơn hoặc hiển thị form tạo.
 
@@ -116,6 +119,7 @@ def show_create_invoice_page():
 
 
 @invoice_bp.route("/detail/<int:id>", methods=["GET"])
+@admin_required
 def show_invoice_detail_page(id):
     """Hiển thị chi tiết hóa đơn.
 
@@ -138,6 +142,7 @@ def show_invoice_detail_page(id):
 
 
 @invoice_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_invoice_page(id):
     """Điều chỉnh thông tin hóa đơn hoặc hiển thị form chỉnh sửa.
 
@@ -181,6 +186,7 @@ def show_edit_invoice_page(id):
 
 
 @invoice_bp.route("/delete/<int:id>", methods=["POST"])
+@admin_required
 def delete_invoice(id):
     """Xóa mềm hóa đơn.
 

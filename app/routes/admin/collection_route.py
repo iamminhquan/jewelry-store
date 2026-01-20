@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for
 
+from app.decorators import admin_required
 from app.services.collection_service import (
     create_collection,
     get_collection_or_404,
@@ -17,6 +18,7 @@ collection_bp = Blueprint(
 
 
 @collection_bp.route("/", methods=["GET"])
+@admin_required
 def show_collection_page():
     """Hiển thị trang quản lý bộ sưu tập kèm lọc và phân trang.
 
@@ -48,6 +50,7 @@ def show_collection_page():
 
 
 @collection_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def show_create_collection_page():
     """Tạo mới bộ sưu tập hoặc hiển thị form tạo.
 
@@ -69,6 +72,7 @@ def show_create_collection_page():
 
 
 @collection_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_collection_page(id):
     """Cập nhật bộ sưu tập hoặc hiển thị form chỉnh sửa.
 
@@ -98,6 +102,7 @@ def show_edit_collection_page(id):
 
 
 @collection_bp.route("/delete/<int:id>", methods=["POST"])
+@admin_required
 def delete_collection(id):
     """Xoá mềm bộ sưu tập bằng cách chuyển trạng thái sang đã xoá.
 

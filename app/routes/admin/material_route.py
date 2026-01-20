@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for
 
+from app.decorators import admin_required
 from app.services.material_service import (
     create_material,
     get_material_or_404,
@@ -17,6 +18,7 @@ material_bp = Blueprint(
 
 
 @material_bp.route("/", methods=["GET"])
+@admin_required
 def show_material_page():
     """Hiển thị trang quản lý chất liệu kèm lọc và phân trang.
 
@@ -43,6 +45,7 @@ def show_material_page():
 
 
 @material_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def show_create_material_page():
     """Tạo mới chất liệu hoặc hiển thị form tạo.
 
@@ -59,6 +62,7 @@ def show_create_material_page():
 
 
 @material_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_material_page(id):
     """Cập nhật chất liệu hoặc hiển thị form chỉnh sửa.
 
@@ -83,6 +87,7 @@ def show_edit_material_page(id):
 
 
 @material_bp.route("/delete/<int:id>", methods=["POST"])
+@admin_required
 def delete_material(id):
     """Xoá chất liệu khỏi cơ sở dữ liệu.
 

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for
 
+from app.decorators import admin_required
 from app.services.product_service import (
     create_product,
     get_product_or_404,
@@ -16,6 +17,7 @@ product_bp = Blueprint(
 
 
 @product_bp.route("/", methods=["GET"])
+@admin_required
 def show_all_products():
     """Hiển thị trang quản lý sản phẩm kèm lọc và phân trang.
 
@@ -47,6 +49,7 @@ def show_all_products():
 
 
 @product_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def show_create_product_page():
     """Tạo mới sản phẩm hoặc hiển thị form tạo.
 
@@ -105,6 +108,7 @@ def show_create_product_page():
 
 
 @product_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_product_page(id):
     """Cập nhật sản phẩm hoặc hiển thị form chỉnh sửa.
 
@@ -174,6 +178,7 @@ def show_edit_product_page(id):
 
 
 @product_bp.route("/delete/<int:id>", methods=["POST"])
+@admin_required
 def delete_product(id):
     """Xoá mềm sản phẩm bằng cách chuyển trạng thái sang đã xoá.
 

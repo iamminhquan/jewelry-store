@@ -28,6 +28,11 @@ class Account(UserMixin, db.Model):
     def is_active(self):
         return self.trang_thai == 1
 
+    @property
+    def is_admin(self):
+        """Check if user has admin role (role == 1)."""
+        return self.role == 1
+
     def set_password(self, raw_password: str):
         self.password_hash = generate_password_hash(raw_password)
 

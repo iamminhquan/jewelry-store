@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash
 
+from app.decorators import admin_required
 from app.services.order_service import (
     cancel_order,
     confirm_order,
@@ -20,6 +21,7 @@ order_bp = Blueprint(
 
 
 @order_bp.route("/", methods=["GET"])
+@admin_required
 def show_order_page():
     """Hiển thị trang quản lý đơn hàng kèm lọc và phân trang.
 
@@ -68,6 +70,7 @@ def show_order_page():
 
 
 @order_bp.route("/detail/<int:id>", methods=["GET"])
+@admin_required
 def show_order_detail_page(id):
     """Hiển thị chi tiết đơn hàng.
 
@@ -90,6 +93,7 @@ def show_order_detail_page(id):
 
 
 @order_bp.route("/confirm/<int:id>", methods=["POST"])
+@admin_required
 def confirm_order_route(id):
     """Xác nhận đơn hàng.
 
@@ -106,6 +110,7 @@ def confirm_order_route(id):
 
 
 @order_bp.route("/cancel/<int:id>", methods=["POST"])
+@admin_required
 def cancel_order_route(id):
     """Hủy đơn hàng.
 
@@ -128,6 +133,7 @@ def cancel_order_route(id):
 
 
 @order_bp.route("/update_status/<int:id>", methods=["POST"])
+@admin_required
 def update_order_status_route(id):
     """Cập nhật trạng thái đơn hàng.
 
@@ -149,6 +155,7 @@ def update_order_status_route(id):
 
 
 @order_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_order_page(id):
     """Điều chỉnh thông tin đơn hàng hoặc hiển thị form chỉnh sửa.
 

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for
 
+from app.decorators import admin_required
 from app.services.brand_service import (
     create_brand,
     get_brand_or_404,
@@ -17,6 +18,7 @@ brand_bp = Blueprint(
 
 
 @brand_bp.route("/", methods=["GET"])
+@admin_required  # Chỉ admin (role == 1) mới được truy cập
 def show_brand_page():
     """Hiển thị trang quản lý thương hiệu kèm lọc và phân trang.
 
@@ -43,6 +45,7 @@ def show_brand_page():
 
 
 @brand_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def show_create_brand_page():
     """Tạo mới thương hiệu hoặc hiển thị form tạo.
 
@@ -62,6 +65,7 @@ def show_create_brand_page():
 
 
 @brand_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_brand_page(id):
     """Cập nhật thương hiệu hoặc hiển thị form chỉnh sửa.
 
@@ -89,6 +93,7 @@ def show_edit_brand_page(id):
 
 
 @brand_bp.route("/delete/<int:id>", methods=["POST"])
+@admin_required
 def delete_brand(id):
     """Xoá thương hiệu khỏi cơ sở dữ liệu.
 

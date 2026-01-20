@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for
 
+from app.decorators import admin_required
 from app.services.product_type_service import (
     create_product_type,
     get_all_categories,
@@ -18,6 +19,7 @@ product_type_bp = Blueprint(
 
 
 @product_type_bp.route("/", methods=["GET"])
+@admin_required
 def show_product_type_page():
     """Hiển thị trang quản lý loại sản phẩm kèm lọc và phân trang.
 
@@ -48,6 +50,7 @@ def show_product_type_page():
 
 
 @product_type_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def show_create_product_type_page():
     """Tạo mới loại sản phẩm hoặc hiển thị form tạo.
 
@@ -73,6 +76,7 @@ def show_create_product_type_page():
 
 
 @product_type_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_product_type_page(id):
     """Cập nhật loại sản phẩm hoặc hiển thị form chỉnh sửa.
 
@@ -104,6 +108,7 @@ def show_edit_product_type_page(id):
 
 
 @product_type_bp.route("/delete/<int:id>", methods=["POST"])
+@admin_required
 def delete_product_type(id):
     """Xoá loại sản phẩm khỏi cơ sở dữ liệu.
 

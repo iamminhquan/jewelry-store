@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template
 
+from app.decorators import admin_required
+
 
 admin_route = Blueprint(
     "admin",
@@ -9,6 +11,7 @@ admin_route = Blueprint(
 
 
 @admin_route.route("/", methods=["GET"])
+@admin_required  # Chỉ admin (role == 1) mới được truy cập
 def show_dashboard_page():
     """Hiển thị trang tổng quan quản trị.
 

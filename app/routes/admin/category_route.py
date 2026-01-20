@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, redirect, request, url_for
 
+from app.decorators import admin_required
 from app.services.category_service import (
     create_category,
     get_category_or_404,
@@ -17,6 +18,7 @@ category_bp = Blueprint(
 
 
 @category_bp.route("/", methods=["GET"])
+@admin_required
 def show_category_page():
     """Hiển thị trang quản lý danh mục kèm lọc và phân trang.
 
@@ -48,6 +50,7 @@ def show_category_page():
 
 
 @category_bp.route("/create", methods=["GET", "POST"])
+@admin_required
 def show_create_category_page():
     """Tạo mới danh mục hoặc hiển thị form tạo.
 
@@ -69,6 +72,7 @@ def show_create_category_page():
 
 
 @category_bp.route("/edit/<int:id>", methods=["GET", "POST"])
+@admin_required
 def show_edit_category_page(id):
     """Cập nhật danh mục hoặc hiển thị form chỉnh sửa.
 
@@ -98,6 +102,7 @@ def show_edit_category_page(id):
 
 
 @category_bp.route("/delete/<int:id>", methods=["POST"])
+@admin_required
 def delete_category(id):
     """Xoá mềm danh mục bằng cách chuyển trạng thái sang đã xoá.
 

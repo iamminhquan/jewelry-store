@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template
 
+from app.decorators import admin_required
 from app.services.report_service import build_report_data
 
 
@@ -11,6 +12,7 @@ report_bp = Blueprint(
 
 
 @report_bp.route("/", methods=["GET"])
+@admin_required
 def show_report_page():
     """Hiển thị trang báo cáo doanh thu và lượt mua."""
     report_data = build_report_data()
