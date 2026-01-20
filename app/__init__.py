@@ -33,6 +33,13 @@ def create_app():
     from app.routes.admin.product_route import product_bp
     from app.routes.admin.category_route import category_bp
     from app.routes.admin.material_route import material_bp
+    from app.routes.admin.brand_route import brand_bp
+    from app.routes.admin.collection_route import collection_bp
+    from app.routes.admin.product_type_route import product_type_bp
+    from app.routes.admin.order_route import order_bp
+    from app.routes.admin.invoice_route import invoice_bp
+    from app.routes.admin.report_route import report_bp
+    from app.routes.admin.comment_route import comment_bp
     from app.routes.auth_route import auth_bp
     from app.routes.admin.admin_route import admin_route
 
@@ -41,6 +48,13 @@ def create_app():
     app.register_blueprint(product_bp)
     app.register_blueprint(category_bp)
     app.register_blueprint(material_bp)
+    app.register_blueprint(brand_bp)
+    app.register_blueprint(collection_bp)
+    app.register_blueprint(product_type_bp)
+    app.register_blueprint(order_bp)
+    app.register_blueprint(invoice_bp)
+    app.register_blueprint(report_bp)
+    app.register_blueprint(comment_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_route)
 
