@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, redirect, request, url_for
 
-from app.models import Product
 from app.services.product_service import (
     create_product,
     get_product_or_404,
@@ -8,8 +7,6 @@ from app.services.product_service import (
     soft_delete_product,
     update_product,
 )
-
-from app.services.product_service import get_all_products
 
 product_bp = Blueprint(
     "product",
