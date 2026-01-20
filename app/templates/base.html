@@ -46,7 +46,6 @@
                 <circle cx="12" cy="10.8" r="2.2" stroke="currentColor" stroke-width="1.6" />
               </svg>
             </button>
-            {% if current_user.is_authenticated %}
             <div class="relative inline-flex h-10 w-10 group">
               <button type="button" aria-label="Account"
                 class="flex h-10 w-10 items-center justify-center rounded-full leading-none transition hover:bg-slate-100 hover:text-slate-900">
@@ -58,22 +57,28 @@
               <div class="absolute right-0 top-full z-20 pt-2">
                 <div
                   class="pointer-events-none w-52 rounded-xl border border-slate-100 bg-white p-2 text-sm text-slate-700 shadow-lg opacity-0 translate-y-1 transition duration-150 ease-out group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-y-0">
+                  {% if current_user.is_authenticated %}
                   <a href="{{ url_for('main.show_account_page') }}"
                     class="block w-full rounded-lg px-4 py-2 text-left font-medium transition hover:bg-slate-100 hover:text-slate-900">
                     Thông tin tài khoản
                   </a>
+                  <a href="{{ url_for('main.logout') }}"
+                    class="mt-1 block w-full rounded-lg px-4 py-2 text-left font-medium text-rose-600 transition hover:bg-rose-50 hover:text-rose-700">
+                    Đăng xuất
+                  </a>
+                  {% else %}
+                  <a href="{{ url_for('main.show_login_page') }}"
+                    class="block w-full rounded-lg px-4 py-2 text-left font-medium transition hover:bg-slate-100 hover:text-slate-900">
+                    Đăng nhập
+                  </a>
+                  <a href="{{ url_for('main.show_register_page') }}"
+                    class="mt-1 block w-full rounded-lg px-4 py-2 text-left font-medium transition hover:bg-slate-100 hover:text-slate-900">
+                    Đăng ký
+                  </a>
+                  {% endif %}
                 </div>
               </div>
             </div>
-            {% else %}
-            <a href="{{ url_for('auth.show_sign_in_page') }}" aria-label="Account"
-              class="flex h-10 w-10 items-center justify-center rounded-full leading-none transition hover:bg-slate-100 hover:text-slate-900">
-              <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <circle cx="12" cy="8" r="3.2" stroke="currentColor" stroke-width="1.6" />
-                <path d="M5 19a7 7 0 0 1 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-              </svg>
-            </a>
-            {% endif %}
             <button type="button" aria-label="Bag"
               class="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100 hover:text-slate-900">
               <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
