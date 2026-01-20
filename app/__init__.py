@@ -2,6 +2,7 @@ from flask import Flask
 
 from app.config import Config
 from app.extensions import db
+from app.extensions import login_manager
 from app.extensions import migrate
 
 
@@ -22,6 +23,10 @@ def create_app():
 
     # Manage migration.
     migrate.init_app(app, db)
+
+    # Manage login/session.
+    login_manager.init_app(app)
+    login_manager.login_view = "auth.show_sign_in_page"
 
     # Import các Blueprint vào Factory function.
     from app.routes.main_route import main_bp

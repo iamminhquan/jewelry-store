@@ -1,4 +1,8 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import login_user
+from urllib.parse import urlparse
+
+from app.services.auth_service import authenticate_user
 
 auth_bp = Blueprint(
     "auth",
@@ -9,6 +13,22 @@ auth_bp = Blueprint(
 
 @auth_bp.route("/sign-in", methods=["GET", "POST"])
 def show_sign_in_page():
+    if request.method == "POST":
+        identifier = request.form.get("identifier", "").strip()
+        password = request.form.get("password", "")
+        remember = bool(request.form.get("remember"))
+
+        account, error_message = authenticate_user(identifier, password)
+        if not account:
+            flash(error_message, "error")
+            return redirect(url_for("auth.show_sign_in_page"))
+
+        login_user(account, remember=remember)
+        next_url = request.args.get("next")
+        if next_url and urlparse(next_url).netloc == "":
+            return redirect(next_url)
+        return redirect(url_for("main.show_home_page"))
+
     return render_template("auth/sign_in.html")
 
 
