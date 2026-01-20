@@ -1,0 +1,432 @@
+<!-- người chỉnh sửa: Nguyễn Thái Nguyên
+thời gian chỉnh sửa: 17/01/2025
+nội dung: chỉnh sửa điều hướng và các chức năng liên quan đến trang -->
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Đơn Hàng | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+      <!--thanh dash dashbord phía ngoài bên trái - gọi lại giao diện thanh dashboard-->
+      {% include "layout_admin/aside_dashboard.html" %}
+      <!--chứa header và main-->
+      <div class="flex flex-1 flex-col">
+        <header
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <a href="{{ url_for('order.show_order_page') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                QUẢN LÝ ĐƠN HÀNG
+              </h1>
+            </a>
+
+            <p class="text-sm text-slate-500">
+              Theo dõi, quản lý và xử lý đơn hàng
+            </p>
+          </div>
+          <div class="flex flex-1 flex-wrap items-center justify-end gap-3">
+            <div class="relative w-full max-w-xs">
+              <!--nơi tra cứu đơn hàng-->
+              <form method="get" class="flex gap-2">
+                <div class="relative w-full max-w-xs">
+                  <input
+                    type="search"
+                    name="keyword"
+                    placeholder="Tìm mã đơn hàng, tên khách hàng..."
+                    value="{{ request.args.get('keyword', '') }}"
+                    class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-3 text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+                >
+                  Tìm
+                </button>
+              </form>
+              <!--ket thuc noi tra cứu đơn hàng-->
+              <svg
+                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                />
+                <path
+                  d="m20 20-3.5-3.5"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 space-y-6 px-6 py-6">
+          <!-- Flash messages -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              <div class="space-y-2">
+                {% for category, message in messages %}
+                <div class="rounded-lg px-4 py-3 text-sm {% if category == 'success' %}bg-emerald-50 text-emerald-700{% elif category == 'error' %}bg-rose-50 text-rose-700{% else %}bg-slate-50 text-slate-700{% endif %}">
+                  {{ message }}
+                </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endwith %}
+          
+          <!--thống kê nhanh-->
+          <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Tổng đơn hàng</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{total_orders}}
+              </p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Chờ xác nhận</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{cho_xac_nhan}}
+              </p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Đang xử lý</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{dang_xu_ly}}
+              </p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Đang giao</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{dang_giao}}
+              </p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Đã giao</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{da_giao}}
+              </p>
+            </div>
+            <div
+              class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100"
+            >
+              <p class="text-sm text-slate-500">Đã hủy</p>
+              <p class="mt-2 text-2xl font-semibold text-slate-900">
+                {{da_huy}}
+              </p>
+            </div>
+          </section>
+
+          <!--bộ lọc-->
+          <section
+            class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          >
+            <h2 class="mb-4 text-base font-semibold text-slate-900">
+              Bộ lọc đơn hàng
+            </h2>
+            <form method="get" class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">
+                  Trạng thái
+                </label>
+                <select
+                  name="status"
+                  class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                >
+                  <option value="">Tất cả</option>
+                  <option value="0" {% if request.args.get('status') == '0' %}selected{% endif %}>Chờ xác nhận</option>
+                  <option value="1" {% if request.args.get('status') == '1' %}selected{% endif %}>Đang xử lý</option>
+                  <option value="2" {% if request.args.get('status') == '2' %}selected{% endif %}>Đang giao</option>
+                  <option value="3" {% if request.args.get('status') == '3' %}selected{% endif %}>Đã giao</option>
+                  <option value="4" {% if request.args.get('status') == '4' %}selected{% endif %}>Đã hủy</option>
+                </select>
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">
+                  Từ ngày
+                </label>
+                <input
+                  type="date"
+                  name="date_from"
+                  value="{{ request.args.get('date_from', '') }}"
+                  class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">
+                  Đến ngày
+                </label>
+                <input
+                  type="date"
+                  name="date_to"
+                  value="{{ request.args.get('date_to', '') }}"
+                  class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label class="mb-1 block text-sm font-medium text-slate-700">
+                  Giá trị (VNĐ)
+                </label>
+                <div class="flex gap-2">
+                  <input
+                    type="number"
+                    name="min_value"
+                    placeholder="Từ"
+                    value="{{ request.args.get('min_value', '') }}"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    name="max_value"
+                    placeholder="Đến"
+                    value="{{ request.args.get('max_value', '') }}"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                  />
+                </div>
+              </div>
+              <div class="md:col-span-2 lg:col-span-4 flex gap-2">
+                <button
+                  type="submit"
+                  class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+                >
+                  Lọc
+                </button>
+                <a
+                  href="{{ url_for('order.show_order_page') }}"
+                  class="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                >
+                  Xóa bộ lọc
+                </a>
+                <input type="hidden" name="keyword" value="{{ request.args.get('keyword', '') }}" />
+              </div>
+            </form>
+          </section>
+
+          <!--danh sách đơn hàng-->
+          <section
+            class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          >
+            <h2 class="text-base font-semibold text-slate-900">
+              Danh sách đơn hàng
+            </h2>
+
+            <div class="mt-4 overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="text-left text-xs uppercase text-slate-400">
+                  <tr>
+                    <th class="pb-3 font-medium">Mã đơn hàng</th>
+                    <th class="pb-3 font-medium">Khách hàng</th>
+                    <th class="pb-3 font-medium">Tổng tiền</th>
+                    <th class="pb-3 font-medium">Ngày tạo</th>
+                    <th class="pb-3 font-medium">Trạng thái</th>
+                    <th class="pb-3 font-medium">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody class="text-slate-600">
+                  {% if orders_with_account %} {% for item in orders_with_account %}
+                  <tr class="border-b">
+                    <td class="py-3">{{ item.order.ma_don_hang }}</td>
+                    <td class="py-3 font-medium text-slate-900">
+                      {{ item.account.ho_ten if item.account else 'N/A' }}
+                    </td>
+                    <td class="py-3">
+                      {{ "{:,.0f}".format(item.order.tong_tien_tam_tinh) if item.order.tong_tien_tam_tinh else "0" }} VNĐ
+                    </td>
+                    <td class="py-3">
+                      {{ item.order.ngay_tao.strftime('%d/%m/%Y %H:%M') if item.order.ngay_tao else '-' }}
+                    </td>
+                    <td class="py-3">
+                      {% if item.order.trang_thai == 0 %}
+                      <span class="rounded-full bg-yellow-50 px-3 py-1 text-xs font-medium text-yellow-600">
+                        Chờ xác nhận
+                      </span>
+                      {% elif item.order.trang_thai == 1 %}
+                      <span class="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                        Đang xử lý
+                      </span>
+                      {% elif item.order.trang_thai == 2 %}
+                      <span class="rounded-full bg-purple-50 px-3 py-1 text-xs font-medium text-purple-600">
+                        Đang giao
+                      </span>
+                      {% elif item.order.trang_thai == 3 %}
+                      <span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-600">
+                        Đã giao
+                      </span>
+                      {% elif item.order.trang_thai == 4 %}
+                      <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600">
+                        Đã hủy
+                      </span>
+                      {% else %}
+                      <span class="rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                        Không xác định
+                      </span>
+                      {% endif %}
+                    </td>
+                    <!--nút hành động-->
+                    <td class="py-3">
+                      <div class="flex flex-wrap gap-2">
+                        <!--Xem chi tiết-->
+                        <a
+                          href="{{ url_for('order.show_order_detail_page', id=item.order.ma_don_hang) }}"
+                          class="rounded-lg border border-blue-200 px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50"
+                        >
+                          Chi tiết
+                        </a>
+                        <!--Xác nhận-->
+                        {% if item.order.trang_thai == 0 %}
+                        <form
+                          method="post"
+                          action="{{ url_for('order.confirm_order_route', id=item.order.ma_don_hang) }}"
+                          class="inline"
+                        >
+                          <button
+                            type="submit"
+                            class="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs text-emerald-600 hover:bg-emerald-50"
+                          >
+                            Xác nhận
+                          </button>
+                        </form>
+                        {% endif %}
+                        <!--Cập nhật trạng thái-->
+                        {% if item.order.trang_thai not in [3, 4] %}
+                        <form
+                          method="post"
+                          action="{{ url_for('order.update_order_status_route', id=item.order.ma_don_hang) }}"
+                          class="inline"
+                        >
+                          <select
+                            name="trang_thai"
+                            onchange="this.form.submit()"
+                            class="rounded-lg border border-slate-200 px-2 py-1.5 text-xs"
+                          >
+                            <option value="0" {% if item.order.trang_thai == 0 %}selected{% endif %}>Chờ xác nhận</option>
+                            <option value="1" {% if item.order.trang_thai == 1 %}selected{% endif %}>Đang xử lý</option>
+                            <option value="2" {% if item.order.trang_thai == 2 %}selected{% endif %}>Đang giao</option>
+                            <option value="3" {% if item.order.trang_thai == 3 %}selected{% endif %}>Đã giao</option>
+                          </select>
+                        </form>
+                        {% endif %}
+                        <!--Hủy-->
+                        {% if item.order.trang_thai not in [3, 4] %}
+                        <form
+                          method="post"
+                          action="{{ url_for('order.cancel_order_route', id=item.order.ma_don_hang) }}"
+                          onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này không?');"
+                          class="inline"
+                        >
+                          <button
+                            type="submit"
+                            class="rounded-lg border border-rose-200 px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50"
+                          >
+                            Hủy
+                          </button>
+                        </form>
+                        {% endif %}
+                        <!--Sửa-->
+                        {% if item.order.trang_thai not in [3, 4] %}
+                        <a
+                          href="{{ url_for('order.show_edit_order_page', id=item.order.ma_don_hang) }}"
+                          class="rounded-lg border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50"
+                        >
+                          Sửa
+                        </a>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td colspan="6" class="py-6 text-center text-slate-400">
+                      Chưa có đơn hàng nào.
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+            <!--chỉnh phân trang-->
+            <div
+              class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-slate-600"
+            >
+              <p>
+                Hiển thị từ {{ pagination.page * pagination.per_page -
+                pagination.per_page + 1 }} - {{ pagination.page *
+                pagination.per_page if pagination.page * pagination.per_page <
+                pagination.total else pagination.total }} trong {{
+                pagination.total }} đơn hàng
+              </p>
+
+              <div class="flex items-center gap-1">
+                <!-- Previous -->
+                {% if pagination.has_prev %}
+                <a
+                  href="{{ url_for('order.show_order_page', page=pagination.prev_num, keyword=request.args.get('keyword'), status=request.args.get('status'), date_from=request.args.get('date_from'), date_to=request.args.get('date_to'), min_value=request.args.get('min_value'), max_value=request.args.get('max_value')) }}"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50"
+                >
+                  Trước
+                </a>
+                {% endif %}
+
+                <!-- Page numbers -->
+                {% for p in pagination.iter_pages(left_edge=1, right_edge=1,
+                left_current=1, right_current=1) %} {% if p %} {% if p ==
+                pagination.page %}
+                <span
+                  class="rounded-lg bg-rose-500 px-3 py-1.5 font-medium text-white"
+                >
+                  {{ p }}
+                </span>
+                {% else %}
+                <a
+                  href="{{ url_for('order.show_order_page', page=p, keyword=request.args.get('keyword'), status=request.args.get('status'), date_from=request.args.get('date_from'), date_to=request.args.get('date_to'), min_value=request.args.get('min_value'), max_value=request.args.get('max_value')) }}"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50"
+                >
+                  {{ p }}
+                </a>
+                {% endif %} {% else %}
+                <span class="px-2 text-slate-400">…</span>
+                {% endif %} {% endfor %}
+
+                <!-- Next -->
+                {% if pagination.has_next %}
+                <a
+                  href="{{ url_for('order.show_order_page', page=pagination.next_num, keyword=request.args.get('keyword'), status=request.args.get('status'), date_from=request.args.get('date_from'), date_to=request.args.get('date_to'), min_value=request.args.get('min_value'), max_value=request.args.get('max_value')) }}"
+                  class="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-50"
+                >
+                  Sau
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

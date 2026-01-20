@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Báo cáo doanh thu | Jewelry Store Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800">
+  <div class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="hidden w-64 flex-col border-r border-slate-200 bg-white px-5 py-6 lg:flex">
+      <h2 class="text-lg font-semibold text-rose-600">Jewelry Admin</h2>
+      {% include 'layout_admin/aside_dashboard.html' %}
+    </aside>
+
+    <!-- Main -->
+    <div class="flex flex-1 flex-col">
+
+      <!-- Header -->
+      <header class="flex items-center justify-between border-b bg-white px-6 py-4">
+        <div>
+          <h1 class="text-xl font-semibold">Báo cáo doanh thu</h1>
+          <p class="text-sm text-slate-500">Tổng quan tình hình bán hàng</p>
+        </div>
+        <div class="flex gap-3">
+          <button class="rounded-lg border px-4 py-2 text-sm hover:bg-slate-100">Xuất PDF</button>
+          <button class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600">Tải báo cáo</button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1 space-y-6 px-6 py-6">
+
+        <!-- Thống kê nhanh -->
+        <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Tổng doanh thu</p>
+            <p class="mt-2 text-2xl font-semibold">₫{{ "{:,.0f}".format(revenue_stats.total_revenue) }}</p>
+            <p class="mt-1 text-xs text-emerald-600">
+              {{ revenue_stats.growth_percent }}% so với tháng trước
+            </p>
+          </div>
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Tổng lượt mua</p>
+            <p class="mt-2 text-2xl font-semibold">{{ purchase_stats.total_orders }}</p>
+            <p class="mt-1 text-xs text-emerald-600">
+              {{ purchase_stats.growth_percent }}% so với tháng trước
+            </p>
+          </div>
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Giá trị đơn TB</p>
+            <p class="mt-2 text-2xl font-semibold">₫{{ "{:,.0f}".format(purchase_stats.avg_order_value) }}</p>
+            <p class="mt-1 text-xs text-slate-500">Dựa trên tổng doanh thu / tổng đơn</p>
+          </div>
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm text-slate-500">Tỷ lệ huỷ đơn</p>
+            <p class="mt-2 text-2xl font-semibold">{{ purchase_stats.cancel_rate }}%</p>
+            <p class="mt-1 text-xs text-slate-500">Tổng quan tất cả đơn</p>
+          </div>
+        </section>
+
+        <!-- Biểu đồ & thống kê chi tiết -->
+        <section class="grid gap-6 lg:grid-cols-2">
+
+          <!-- Doanh thu theo thời gian -->
+          <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h2 class="font-semibold">Doanh thu theo ngày ({{ revenue_stats.daily_revenue|length }} ngày gần nhất)</h2>
+            <div class="mt-4 space-y-2 text-sm">
+              {% if revenue_stats.daily_revenue %}
+                {% for item in revenue_stats.daily_revenue %}
+                  <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                    <span class="text-slate-600">{{ item.date }}</span>
+                    <span class="font-semibold text-rose-600">₫{{ "{:,.0f}".format(item.amount) }}</span>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <p class="text-slate-500">Chưa có dữ liệu doanh thu.</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Lượt mua theo kênh -->
+          <div class="rounded-2xl bg-white p-6 shadow-sm">
+            <h2 class="font-semibold">Lượt mua theo trạng thái</h2>
+            <div class="mt-4 space-y-4 text-sm">
+              {% for item in status_breakdown %}
+                <div>
+                  <div class="flex justify-between text-xs">
+                    <span>{{ item.label }}</span>
+                    <span>{{ item.value }} đơn ({{ item.percent }}%)</span>
+                  </div>
+                  <div class="mt-1 h-2 rounded-full bg-slate-100">
+                    <div class="h-2 rounded-full {{ item.color }}" style="width: {{ item.percent }}%"></div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+        <!-- Lượt mua theo ngày -->
+        <section class="rounded-2xl bg-white p-6 shadow-sm">
+          <h2 class="font-semibold">Lượt mua theo ngày ({{ purchase_stats.daily_orders|length }} ngày gần nhất)</h2>
+          <div class="mt-4 space-y-2 text-sm">
+            {% if purchase_stats.daily_orders %}
+              {% for item in purchase_stats.daily_orders %}
+                <div class="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                  <span class="text-slate-600">{{ item.date }}</span>
+                  <span class="font-semibold text-slate-900">{{ item.total }} đơn</span>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-slate-500">Chưa có dữ liệu lượt mua.</p>
+            {% endif %}
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</body>
+</html>

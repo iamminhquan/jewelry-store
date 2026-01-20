@@ -1,0 +1,140 @@
+<!-- người chỉnh sửa: Nguyễn Thái Nguyên
+thời gian chỉnh sửa: 17/01/2025
+nội dung: chỉnh sửa điều hướng và các chức năng liên quan đến trang -->
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chỉnh Sửa Đơn Hàng | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+      <!-- Aside dashboard -->
+      {% include "layout_admin/aside_dashboard.html" %}
+
+      <!-- Content -->
+      <div class="flex flex-1 flex-col">
+        <!-- Header -->
+        <header
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <a href="{{ url_for('order.show_order_page') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                CHỈNH SỬA ĐƠN HÀNG #{{ order.ma_don_hang }}
+              </h1>
+            </a>
+            <p class="text-sm text-slate-500">
+              Điều chỉnh thông tin đơn hàng
+            </p>
+          </div>
+        </header>
+
+        <!-- Main -->
+        <main class="flex-1 px-6 py-8">
+          <div class="mx-auto max-w-2xl">
+            <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+              <h2 class="mb-6 text-lg font-semibold text-slate-900">
+                Thông tin đơn hàng
+              </h2>
+
+              <form method="post" class="space-y-5">
+                <!-- Mã đơn hàng (readonly) -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Mã đơn hàng
+                  </label>
+                  <input
+                    type="text"
+                    value="{{ order.ma_don_hang }}"
+                    disabled
+                    class="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  />
+                </div>
+
+                <!-- Khách hàng (readonly) -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Khách hàng
+                  </label>
+                  <input
+                    type="text"
+                    value="{{ account.ho_ten if account else 'N/A' }}"
+                    disabled
+                    class="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  />
+                </div>
+
+                <!-- Tổng tiền tạm tính -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Tổng tiền tạm tính (VNĐ)
+                  </label>
+                  <input
+                    type="number"
+                    name="tong_tien_tam_tinh"
+                    value="{{ order.tong_tien_tam_tinh if order.tong_tien_tam_tinh else '' }}"
+                    step="0.01"
+                    min="0"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  />
+                </div>
+
+                <!-- Ngày đặt hàng -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Ngày đặt hàng
+                  </label>
+                  <input
+                    type="date"
+                    name="ngay_dat_hang"
+                    value="{{ order.ngay_dat_hang.strftime('%Y-%m-%d') if order.ngay_dat_hang else '' }}"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  />
+                </div>
+
+                <!-- Trạng thái (readonly) -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Trạng thái
+                  </label>
+                  <input
+                    type="text"
+                    value="{% if order.trang_thai == 0 %}Chờ xác nhận{% elif order.trang_thai == 1 %}Đang xử lý{% elif order.trang_thai == 2 %}Đang giao{% elif order.trang_thai == 3 %}Đã giao{% elif order.trang_thai == 4 %}Đã hủy{% else %}Không xác định{% endif %}"
+                    disabled
+                    class="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  />
+                  <p class="mt-1 text-xs text-slate-500">
+                    Để thay đổi trạng thái, vui lòng sử dụng các nút hành động ở trang danh sách.
+                  </p>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end gap-3 pt-4">
+                  <a
+                    href="{{ url_for('order.show_order_page') }}"
+                    class="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                  >
+                    Huỷ
+                  </a>
+                  <button
+                    type="submit"
+                    class="rounded-lg bg-rose-500 px-5 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+                  >
+                    Lưu thay đổi
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,43 @@
+<!-- người chỉnh sửa: Nguyễn Thái Nguyên
+thời gian chỉnh sửa: 20/01/2026
+nội dung: trang quản lý đánh giá -->
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đánh giá | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+      <!-- Aside dashboard -->
+      {% include "layout_admin/aside_dashboard.html" %}
+
+      <!-- Content -->
+      <div class="flex flex-1 flex-col">
+        <header
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <h1 class="text-xl font-semibold text-slate-900">
+              QUẢN LÝ ĐÁNH GIÁ
+            </h1>
+            <p class="text-sm text-slate-500">
+              Quản lý đánh giá và phản hồi của khách hàng
+            </p>
+          </div>
+        </header>
+
+        <main class="flex-1 px-6 py-6">
+          <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+            <p class="text-sm text-slate-500">
+              Trang đánh giá đang được cập nhật.
+            </p>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

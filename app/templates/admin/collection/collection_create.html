@@ -1,0 +1,119 @@
+<!-- người chỉnh sửa: Nguyễn Thái Nguyên
+thời gian chỉnh sửa: 17/01/2025
+nội dung: chỉnh sửa điều hướng và các chức năng liên quan đến trang -->
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm bộ sưu tập | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+
+      <!-- Aside -->
+      {% include "layout_admin/aside_dashboard.html" %}
+
+      <!-- Content -->
+      <div class="flex flex-1 flex-col">
+
+        <!-- Header -->
+        <header
+          class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <a href="{{ url_for('collection.show_collection_page') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                THÊM BỘ SƯU TẬP
+              </h1>
+            </a>
+            <p class="text-sm text-slate-500">
+              Nhập thông tin bộ sưu tập mới
+            </p>
+          </div>
+        </header>
+
+        <!-- Main -->
+        <main class="flex-1 px-6 py-8">
+          <div class="mx-auto max-w-2xl">
+            <div
+              class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+            >
+              <h2 class="mb-6 text-lg font-semibold text-slate-900">
+                Thông tin bộ sưu tập
+              </h2>
+
+              <form method="post" class="space-y-5">
+
+                <!-- Tên bộ sưu tập -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Tên bộ sưu tập
+                  </label>
+                  <input
+                    type="text"
+                    name="ten_bo_suu_tap"
+                    required
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  />
+                </div>
+
+                <!-- Mô tả -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Mô tả
+                  </label>
+                  <textarea
+                    name="mo_ta"
+                    rows="4"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  ></textarea>
+                </div>
+
+                <!-- Trạng thái -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Trạng thái
+                  </label>
+                  <select
+                    name="trang_thai"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  >
+                    <option value="1" selected>
+                      Đang kinh doanh
+                    </option>
+                    <option value="2">
+                      Ngừng kinh doanh
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end gap-3 pt-4">
+                  <a
+                    href="{{ url_for('collection.show_collection_page') }}"
+                    class="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                  >
+                    Huỷ
+                  </a>
+                  <button
+                    type="submit"
+                    class="rounded-lg bg-rose-500 px-5 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+                  >
+                    Thêm bộ sưu tập
+                  </button>
+                </div>
+
+              </form>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>

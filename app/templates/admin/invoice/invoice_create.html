@@ -1,0 +1,272 @@
+<!-- người chỉnh sửa: Nguyễn Thái Nguyên
+thời gian chỉnh sửa: 17/01/2025
+nội dung: chỉnh sửa điều hướng và các chức năng liên quan đến trang -->
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thêm Hóa Đơn | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+
+      <!-- Aside -->
+      {% include "layout_admin/aside_dashboard.html" %}
+
+      <!-- Content -->
+      <div class="flex flex-1 flex-col">
+
+        <!-- Header -->
+        <header
+          class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <a href="{{ url_for('invoice.show_invoice_page') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                THÊM HÓA ĐƠN
+              </h1>
+            </a>
+            <p class="text-sm text-slate-500">
+              Nhập thông tin hóa đơn mới
+            </p>
+          </div>
+        </header>
+
+        <!-- Main -->
+        <main class="flex-1 px-6 py-8">
+          <div class="mx-auto max-w-4xl">
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="mb-4 space-y-2">
+                  {% for category, message in messages %}
+                  <div class="rounded-lg px-4 py-3 text-sm {% if category == 'success' %}bg-emerald-50 text-emerald-700{% elif category == 'error' %}bg-rose-50 text-rose-700{% else %}bg-slate-50 text-slate-700{% endif %}">
+                    {{ message }}
+                  </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+              <h2 class="mb-6 text-lg font-semibold text-slate-900">
+                Thông tin hóa đơn
+              </h2>
+
+              <form method="post" class="space-y-5" id="invoiceForm">
+                <!-- Khách hàng -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Khách hàng <span class="text-rose-500">*</span>
+                  </label>
+                  <select
+                    name="ma_tai_khoan"
+                    required
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  >
+                    <option value="">-- Chọn khách hàng --</option>
+                    {% for acc in accounts %}
+                    <option value="{{ acc.ma_tai_khoan }}">
+                      {{ acc.ho_ten }} ({{ acc.ten_tai_khoan }})
+                    </option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- Tổng tiền tạm tính -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Tổng tiền tạm tính (VNĐ)
+                  </label>
+                  <input
+                    type="number"
+                    name="tong_tien_tam_tinh"
+                    step="0.01"
+                    min="0"
+                    id="tong_tien_tam_tinh"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  />
+                </div>
+
+                <!-- Ngày đặt hàng -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Ngày đặt hàng
+                  </label>
+                  <input
+                    type="date"
+                    name="ngay_dat_hang"
+                    value="{{ '' }}"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  />
+                </div>
+
+                <!-- Trạng thái -->
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Trạng thái
+                  </label>
+                  <select
+                    name="trang_thai"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  >
+                    <option value="0" selected>Chờ xác nhận</option>
+                    <option value="1">Đang xử lý</option>
+                    <option value="2">Đã thanh toán</option>
+                    <option value="4">Đã hủy</option>
+                  </select>
+                </div>
+
+                <!-- Chi tiết sản phẩm -->
+                <div>
+                  <div class="mb-2 flex items-center justify-between">
+                    <label class="block text-sm font-medium text-slate-700">
+                      Chi tiết sản phẩm
+                    </label>
+                    <button
+                      type="button"
+                      onclick="addProductRow()"
+                      class="rounded-lg bg-blue-500 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-600"
+                    >
+                      + Thêm sản phẩm
+                    </button>
+                  </div>
+                  <div id="productRows" class="space-y-3">
+                    <!-- Sẽ được thêm động bằng JavaScript -->
+                  </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end gap-3 pt-4">
+                  <a
+                    href="{{ url_for('invoice.show_invoice_page') }}"
+                    class="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                  >
+                    Huỷ
+                  </a>
+                  <button
+                    type="submit"
+                    class="rounded-lg bg-rose-500 px-5 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+                  >
+                    Thêm hóa đơn
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      let productRowIndex = 0;
+      const products = {{ products | tojson }};
+
+      function addProductRow() {
+        const container = document.getElementById('productRows');
+        const row = document.createElement('div');
+        row.className = 'grid grid-cols-12 gap-2 items-end';
+        row.id = `productRow_${productRowIndex}`;
+        
+        row.innerHTML = `
+          <div class="col-span-5">
+            <select
+              name="product_id[]"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              onchange="updatePrice(this, ${productRowIndex})"
+            >
+              <option value="">-- Chọn sản phẩm --</option>
+              ${products.map(p => {
+                const price = parseFloat(p.gia_xuat) || 0;
+                return `<option value="${p.ma_san_pham}" data-price="${price}">${p.ten_san_pham} - ${price.toLocaleString('vi-VN')} VNĐ</option>`;
+              }).join('')}
+            </select>
+          </div>
+          <div class="col-span-2">
+            <input
+              type="number"
+              name="quantity[]"
+              placeholder="Số lượng"
+              min="1"
+              value="1"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              onchange="calculateTotal(${productRowIndex})"
+            />
+          </div>
+          <div class="col-span-3">
+            <input
+              type="number"
+              name="price[]"
+              placeholder="Đơn giá"
+              step="0.01"
+              min="0"
+              id="price_${productRowIndex}"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              onchange="calculateTotal(${productRowIndex}); updateTotalAmount()"
+            />
+          </div>
+          <div class="col-span-2">
+            <button
+              type="button"
+              onclick="removeProductRow(${productRowIndex})"
+              class="w-full rounded-lg border border-rose-200 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50"
+            >
+              Xóa
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(row);
+        productRowIndex++;
+      }
+
+      function removeProductRow(index) {
+        const row = document.getElementById(`productRow_${index}`);
+        if (row) {
+          row.remove();
+          updateTotalAmount();
+        }
+      }
+
+      function updatePrice(select, index) {
+        const selectedOption = select.options[select.selectedIndex];
+        const price = selectedOption.getAttribute('data-price');
+        if (price) {
+          document.getElementById(`price_${index}`).value = price;
+          calculateTotal(index);
+        }
+      }
+
+      function calculateTotal(index) {
+        const quantity = document.querySelector(`#productRow_${index} input[name="quantity[]"]`).value;
+        const price = document.getElementById(`price_${index}`).value;
+        updateTotalAmount();
+      }
+
+      function updateTotalAmount() {
+        let total = 0;
+        const prices = document.querySelectorAll('input[name="price[]"]');
+        const quantities = document.querySelectorAll('input[name="quantity[]"]');
+        
+        for (let i = 0; i < prices.length; i++) {
+          const price = parseFloat(prices[i].value) || 0;
+          const quantity = parseInt(quantities[i].value) || 0;
+          total += price * quantity;
+        }
+        
+        document.getElementById('tong_tien_tam_tinh').value = total.toFixed(2);
+      }
+
+      // Thêm một dòng sản phẩm mặc định khi trang load
+      window.onload = function() {
+        addProductRow();
+      };
+    </script>
+  </body>
+</html>
