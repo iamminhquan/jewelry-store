@@ -26,7 +26,7 @@
 
     <!-- Sản phẩm -->
     <a href="{{ url_for('product.show_all_products') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
-      {% if '/admin/product' in request.path %}
+      {% if 'product' in request.path and 'product_type' not in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
         text-slate-600 hover:bg-slate-100
@@ -45,7 +45,7 @@
     </a>
 
     <!-- Bộ sưu tập -->
-    <a href="collection/" class="flex items-center gap-3 rounded-lg px-3 py-2
+    <a href="{{ url_for('collection.show_collection_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
       {% if 'collection' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
@@ -55,7 +55,7 @@
     </a>
 
     <!-- Thương hiệu -->
-    <a href="brand/" class="flex items-center gap-3 rounded-lg px-3 py-2
+    <a href="{{ url_for('brand.show_brand_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
       {% if 'brand' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
@@ -65,7 +65,7 @@
     </a>
 
     <!-- Chất liệu -->
-    <a href="material/" class="flex items-center gap-3 rounded-lg px-3 py-2
+    <a href="{{ url_for('material.show_material_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
       {% if 'material' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
@@ -75,8 +75,8 @@
     </a>
 
     <!-- Loại sản phẩm -->
-    <a href="loaisanpham/" class="flex items-center gap-3 rounded-lg px-3 py-2
-      {% if 'loaisanpham' in request.path %}
+    <a href="{{ url_for('product_type.show_product_type_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
+      {% if 'product_type' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
         text-slate-600 hover:bg-slate-100
@@ -85,8 +85,8 @@
     </a>
 
     <!-- Đơn hàng -->
-    <a href="orders/" class="flex items-center gap-3 rounded-lg px-3 py-2
-      {% if 'orders' in request.path %}
+    <a href="{{ url_for('order.show_order_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
+      {% if 'order' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
         text-slate-600 hover:bg-slate-100
@@ -95,8 +95,8 @@
     </a>
 
     <!-- Hoá đơn -->
-    <a href="hoadon/" class="flex items-center gap-3 rounded-lg px-3 py-2
-      {% if 'hoadon' in request.path %}
+    <a href="{{ url_for('invoice.show_invoice_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
+      {% if 'invoice' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
         text-slate-600 hover:bg-slate-100
@@ -105,7 +105,7 @@
     </a>
 
     <!-- Tài khoản -->
-    <a href="customers" class="flex items-center gap-3 rounded-lg px-3 py-2
+    <a href="{{ url_for('main.show_account_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
       {% if 'customers' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
@@ -115,7 +115,7 @@
     </a>
 
     <!-- Đánh giá -->
-    <a href="danhgia" class="flex items-center gap-3 rounded-lg px-3 py-2
+    <a href="/admin/danhgia/" class="flex items-center gap-3 rounded-lg px-3 py-2
       {% if 'danhgia' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
@@ -125,8 +125,8 @@
     </a>
 
     <!-- Báo cáo -->
-    <a href="reports" class="flex items-center gap-3 rounded-lg px-3 py-2
-      {% if 'reports' in request.path %}
+    <a href="{{ url_for('report.show_report_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
+      {% if 'report' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
         text-slate-600 hover:bg-slate-100
