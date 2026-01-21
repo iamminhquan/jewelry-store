@@ -2,7 +2,8 @@ from flask import Blueprint, redirect, render_template, session, url_for, reques
 from flask_login import current_user, login_required, logout_user
 from app.extensions import db
 from app.services.dashboard_service import get_dashboard_data, get_website_info
-
+from app.models.product import Product
+from app.services.user_product_service import get_best_seller_products, get_new_products
 
 main_bp = Blueprint(
     "main",
@@ -13,7 +14,21 @@ main_bp = Blueprint(
 
 @main_bp.route("/")
 def show_home_page():
-    return render_template("index.html")
+    best_sellers = get_best_seller_products()
+    new_products = get_new_products()
+    slide_products = (
+        Product.query.filter(Product.trang_thai == 1)
+        .order_by(Product.so_luong.desc())
+        .limit(4)
+        .all()
+    )
+
+    return render_template(
+        "index.html",
+        slide_products=slide_products,
+        best_sellers=best_sellers,
+        new_products=new_products,
+    )
 
 
 @main_bp.route("/admin")
@@ -22,7 +37,7 @@ def show_admin_dashboard():
     # Kiểm tra quyền admin (role=1 là admin, role=0 là khách hàng)
     if current_user.role != 1:
         return redirect(url_for("auth.show_sign_in_page"))
-    
+
     dashboard_data = get_dashboard_data()
     website_info = get_website_info()
     return render_template(
@@ -53,6 +68,21 @@ def show_login_page():
 @main_bp.route("/register")
 def show_register_page():
     return redirect(url_for("auth.show_sign_up_page"))
+
+
+@main_bp.route("/shipping")
+def show_shipping_page():
+    return render_template("pages/shipping.html")
+
+
+@main_bp.route("/warranty")
+def show_warranty_page():
+    return render_template("pages/warranty.html")
+
+
+@main_bp.route("/payment")
+def show_payment_page():
+    return render_template("pages/payment.html")
 
 
 @main_bp.route("/account", methods=["GET", "POST"])

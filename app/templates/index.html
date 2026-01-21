@@ -3,95 +3,123 @@
 {% block title %}Trang chủ{% endblock %}
 
 {% block content %}
+<!-- ---SLIDE SHOW--- -->
+<div class="relative w-full h-[480px] overflow-hidden rounded-2xl mb-12">
 
-<!-- Hero Section -->
-<div class="bg-gradient-to-r from-primary-600 to-primary-800 text-white rounded-lg p-12 mb-8">
-  <div class="text-center">
-    <h1 class="text-4xl font-bold mb-4">Chào mừng đến với cửa hàng của chúng tôi</h1>
-    <p class="text-xl mb-6">Cửa hàng trang sức trực tuyến</p>
-    <button class="bg-white text-primary-600 py-2 px-6 rounded-lg font-semibold hover:bg-gray-100 transition">
-      Khám phá ngay
-    </button>
-  </div>
-</div>
+  <div id="slider" class="flex transition-transform duration-700 ease-in-out">
+    {% for s in slide_products %}
+    <div class="min-w-full relative">
+      <img src="{{ url_for('static', filename='images/product/nhan5.png') }}" class="w-full h-[480px] object-cover">
 
-<!-- Products Grid -->
-<div class="mb-8">
-  <h2 class="text-3xl font-bold text-gray-800 mb-6">Sản phẩm nổi bật</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Text -->
+      <div class="absolute inset-0 flex items-center">
+        <div class="ml-20 text-white space-y-6">
+          <h1 class="text-5xl font-bold tracking-widest">{{ s.ten_san_pham }}</h1>
 
-    {% for product in products %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-      <div class="h-48 bg-gradient-to-br from-primary-400 to-primary-600"></div>
-      <div class="p-6">
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
-        <p class="text-gray-600 mb-4">{{ product.mo_ta }}</p>
-        <div class="flex justify-between items-center">
-          <span class="text-2xl font-bold text-primary-600">{{ product.gia_xuat }}</span>
-          <button class="btn-primary">Thêm vào giỏ</button>
+          <a href="/product/{{ s.ma_san_pham }}"
+            class="inline-block bg-white text-slate-800 px-10 py-4 font-semibold tracking-widest">
+            MUA NGAY
+          </a>
         </div>
       </div>
     </div>
     {% endfor %}
-
-    <!-- Product Card 1 -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-      <div class="h-48 bg-gradient-to-br from-primary-400 to-primary-600"></div>
-      <div class="p-6">
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">Sản phẩm 1</h3>
-        <p class="text-gray-600 mb-4">Mô tả sản phẩm ngắn gọn và hấp dẫn.</p>
-        <div class="flex justify-between items-center">
-          <span class="text-2xl font-bold text-primary-600">299.000đ</span>
-          <button class="btn-primary">Thêm vào giỏ</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Product Card 2 -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-      <div class="h-48 bg-gradient-to-br from-purple-400 to-pink-600"></div>
-      <div class="p-6">
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">Sản phẩm 2</h3>
-        <p class="text-gray-600 mb-4">Mô tả sản phẩm ngắn gọn và hấp dẫn.</p>
-        <div class="flex justify-between items-center">
-          <span class="text-2xl font-bold text-primary-600">399.000đ</span>
-          <button class="btn-primary">Thêm vào giỏ</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Product Card 3 -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-      <div class="h-48 bg-gradient-to-br from-yellow-400 to-orange-600"></div>
-      <div class="p-6">
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">Sản phẩm 3</h3>
-        <p class="text-gray-600 mb-4">Mô tả sản phẩm ngắn gọn và hấp dẫn.</p>
-        <div class="flex justify-between items-center">
-          <span class="text-2xl font-bold text-primary-600">499.000đ</span>
-          <button class="btn-primary">Thêm vào giỏ</button>
-        </div>
-      </div>
-    </div>
   </div>
+
+  <!-- Buttons -->
+  <button onclick="prevSlide()"
+    class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 w-12 h-12 rounded-full">‹</button>
+  <button onclick="nextSlide()"
+    class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 w-12 h-12 rounded-full">›</button>
 </div>
 
+<!-- SẢN PHẨM BESTSELLER -->
+<div class="mb-8">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">Sản phẩm bán chạy</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    {% for product in best_sellers %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition 
+            flex flex-col h-full">
+      <img src="{{ url_for('static', filename='images/product/charm1.png') }}" class="w-full h-48 object-cover" />
+      <div class="p-6">
+
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
+        <p class="text-gray-600 mb-4">{{ product.mo_ta[:60]}}...</p>
+        <div class="flex justify-between items-center">
+          <span class="text-2xl font-bold text-primary-600">{{ product.gia_xuat }}</span>
+          <a href="/product/{{ product.ma_san_pham }}" class="btn-secondary">
+            Xem chi tiết
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<!-- SẢN PHẨM MỚI -->
+<div class="mb-8">
+  <h2 class="text-3xl font-bold text-gray-800 mb-6">Sản phẩm mới nhất</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    {% for product in new_products %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition 
+            flex flex-col h-full">
+      <img src="{{ url_for('static', filename='images/product/charm1.png') }}" class="w-full h-48 object-cover" />
+      <div class="p-6">
+
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
+        <p class="text-gray-600 mb-4">{{ product.mo_ta[:80]}}...</p>
+        <div class="flex justify-between items-center">
+          <span class="text-2xl font-bold text-primary-600">{{ product.gia_xuat }}</span>
+          <a href="/product/{{ product.ma_san_pham }}" class="btn-secondary">
+            Xem chi tiết
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 <!-- Features Section -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-  <div class="bg-white p-6 rounded-lg shadow-md text-center">
+  <a href="{{ url_for('main.show_shipping_page') }}"
+    class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
     <div class="text-4xl mb-4">🚚</div>
     <h3 class="text-xl font-semibold mb-2">Giao hàng nhanh</h3>
     <p class="text-gray-600">Giao hàng trong 24h</p>
-  </div>
-  <div class="bg-white p-6 rounded-lg shadow-md text-center">
+  </a>
+  <a href="{{ url_for('main.show_payment_page') }}"
+    class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
     <div class="text-4xl mb-4">💳</div>
     <h3 class="text-xl font-semibold mb-2">Thanh toán an toàn</h3>
-    <p class="text-gray-600">Bảo mật thông tin</p>
-  </div>
-  <div class="bg-white p-6 rounded-lg shadow-md text-center">
-    <div class="text-4xl mb-4">↩️</div>
+    <p class="text-gray-600">Bảo mật tuyệt đối</p>
+  </a>
+  <a href="{{ url_for('main.show_warranty_page') }}"
+    class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
+    <div class="text-4xl mb-4">🔄</div>
     <h3 class="text-xl font-semibold mb-2">Đổi trả dễ dàng</h3>
     <p class="text-gray-600">Trong vòng 7 ngày</p>
-  </div>
+  </a>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let index = 0;
+  const slider = document.getElementById("slider");
+  const total = slider.children.length;
+
+  function showSlide(i) {
+    index = (i + total) % total;
+    slider.style.transform = `translateX(-${index * 100}%)`;
+  }
+
+  function nextSlide() { showSlide(index + 1); }
+  function prevSlide() { showSlide(index - 1); }
+
+  setInterval(nextSlide, 5000);
+</script>
 
 {% endblock %}
