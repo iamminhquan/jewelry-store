@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Tìm kiếm{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-6">
+    Kết quả tìm kiếm cho: "{{ keyword }}"
+</h2>
+
+{% if products %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    {% for product in products %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition 
+            flex flex-col h-full">
+        <img src="{{ url_for('static', filename='images/product/charm1.png') }}" class="w-full h-48 object-cover" />
+        <div class="p-6">
+
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
+            <p class="text-gray-600 mb-4">{{ product.mo_ta[:80]}}...</p>
+            <div class="flex justify-between items-center">
+                <span class="text-2xl font-bold text-primary-600">{{ product.gia_xuat }}</span>
+                <a href="/product/{{ product.ma_san_pham }}" class="btn-secondary">
+                    Xem chi tiết
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-500">Không tìm thấy sản phẩm phù hợp.</p>
+{% endif %}
+
+<!-- PHÂN TRANG -->
+{% if pagination.pages > 1 %}
+<div class="flex justify-center items-center gap-2 mt-8">
+
+    {# Previous #}
+    {% if pagination.has_prev %}
+    <a href="?keyword={{ keyword }}&page={{ pagination.prev_num }}" class="px-3 py-1 border rounded hover:bg-gray-100">
+        ←
+    </a>
+    {% endif %}
+
+    {# Page numbers #}
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1,
+    left_current=1, right_current=2) %}
+    {% if p %}
+    {% if p == pagination.page %}
+    <span class="px-3 py-1 bg-blue-600 text-white rounded">
+        {{ p }}
+    </span>
+    {% else %}
+    <a href="?keyword={{ keyword }}&page={{ p }}" class="px-3 py-1 border rounded hover:bg-gray-100">
+        {{ p }}
+    </a>
+    {% endif %}
+    {% else %}
+    <span class="px-2">...</span>
+    {% endif %}
+    {% endfor %}
+
+    {# Next #}
+    {% if pagination.has_next %}
+    <a href="?keyword={{ keyword }}&page={{ pagination.next_num }}" class="px-3 py-1 border rounded hover:bg-gray-100">
+        →
+    </a>
+    {% endif %}
+
+</div>
+{% endif %}
+
+{% endblock %}
