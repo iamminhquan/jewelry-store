@@ -50,6 +50,31 @@ def show_account_page():
     )
 
 
+@main_bp.route("/cart", methods=["GET"])
+@login_required
+def show_cart_page():
+    cart_items = session.get("cart", [])
+
+    total_price = sum(item["price"] * item["quantity"] for item in cart_items)
+
+    pagination = {"page": 1, "total_pages": 1}
+
+    return render_template(
+        "cart.html",
+        cart_items=cart_items,
+        total_price=total_price,
+        pagination=pagination,
+        user=current_user,
+    )
+
+
+@main_bp.route("/checkouts", methods=["GET", "POST"])
+@login_required
+def show_checkouts_page():
+    """Trang thanh toán"""
+    return render_template("/checkouts.html")
+
+
 @main_bp.route("/logout", methods=["GET"])
 @login_required
 def logout():
