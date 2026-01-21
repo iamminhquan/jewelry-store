@@ -44,6 +44,7 @@ def create_app():
     from app.routes.admin.admin_route import admin_route
     from app.routes.users.search_route import search_bp
     from app.routes.users.contact_route import user_bp
+    from app.routes.users.product_route import user_product_bp
 
     # Đăng ký các Blueprint bên trên.
     app.register_blueprint(main_bp)
@@ -61,5 +62,6 @@ def create_app():
     app.register_blueprint(admin_route)
     app.register_blueprint(search_bp)
     app.register_blueprint(user_bp)
+    app.register_blueprint(user_product_bp)
 
     return app
