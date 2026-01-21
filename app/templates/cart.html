@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Giỏ hàng{% endblock %}
+{% block content %}
+
+<div class="container mx-auto px-6 py-10">
+
+  {# ================= GIỎ HÀNG TRỐNG ================= #}
+  {% if not cart_items %}
+  <div class="flex flex-col items-center justify-center py-24">
+    <img src="{{ url_for('static', filename='images/empty-cart.png') }}" class="w-40 mb-6" alt="">
+
+    <h2 class="text-2xl font-semibold mb-2">Giỏ hàng trống 🛒</h2>
+    <p class="text-gray-500 mb-6">
+      Chưa có sản phẩm nào trong giỏ
+    </p>
+
+    <a href="{{ url_for('main.show_home_page') }}"
+      class="px-6 py-3 bg-black text-white rounded hover:bg-gray-800 transition">
+      Tiếp tục mua hàng
+    </a>
+  </div>
+  {% endif %}
+
+
+  {# ================= GIỎ HÀNG CÓ SẢN PHẨM ================= #}
+  {% if cart_items %}
+  <div class="grid grid-cols-12 gap-8">
+
+    <!-- DANH SÁCH SẢN PHẨM -->
+    <div class="col-span-12 lg:col-span-8">
+      <h1 class="text-2xl font-bold mb-6">
+        Giỏ hàng ({{ cart_items|length }} sản phẩm)
+      </h1>
+
+      {% for item in cart_items %}
+      <div class="flex items-center border-b py-6">
+        <img src="{{ item.image }}" class="w-24 h-24 object-cover rounded">
+
+        <div class="ml-6 flex-1">
+          <h3 class="font-semibold">{{ item.name }}</h3>
+          <p class="text-gray-500 mt-1">
+            {{ "{:,.0f}".format(item.price) }}đ
+          </p>
+
+          <!-- SỐ LƯỢNG -->
+          <div class="flex items-center mt-4 gap-3">
+            <a href="{{ url_for('main.update_cart', id=item.id, action='decrease') }}"
+              class="px-3 py-1 border rounded hover:bg-gray-100">-</a>
+
+            <span class="min-w-[32px] text-center">
+              {{ item.quantity }}
+            </span>
+
+            <a href="{{ url_for('main.update_cart', id=item.id, action='increase') }}"
+              class="px-3 py-1 border rounded hover:bg-gray-100">+</a>
+          </div>
+        </div>
+
+        <!-- GIÁ + XOÁ -->
+        <div class="text-right">
+          <p class="font-semibold">
+            {{ "{:,.0f}".format(item.price * item.quantity) }}đ
+          </p>
+
+          <a href="{{ url_for('cart.remove_cart', id=item.id) }}" class="text-sm text-red-500 hover:underline">
+            Xoá
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+
+      <!-- XOÁ HẾT -->
+      <div class="mt-6">
+        <a href="{{ url_for('cart.clear_cart') }}" class="text-red-600 hover:underline">
+          ❌ Xoá hết giỏ hàng
+        </a>
+      </div>
+
+      <!-- PHÂN TRANG -->
+      {% if pagination.total_pages > 1 %}
+      <div class="flex justify-center mt-8 gap-2">
+        {% for p in range(1, pagination.total_pages + 1) %}
+        <a href="{{ url_for('main.show_cart_page', page=p) }}" class="px-4 py-2 border rounded
+                   {% if p == pagination.page %}bg-black text-white{% endif %}">
+          {{ p }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- TỔNG ĐƠN -->
+    <div class="col-span-12 lg:col-span-4 border p-6 rounded-lg h-fit">
+      <h2 class="font-bold text-lg mb-4">Đơn hàng</h2>
+
+      <div class="flex justify-between mb-2">
+        <span>Tạm tính</span>
+        <span>{{ "{:,.0f}".format(total_price) }}đ</span>
+      </div>
+
+      <div class="flex justify-between font-semibold text-lg border-t pt-4">
+        <span>Tổng thanh toán</span>
+        <span>{{ "{:,.0f}".format(total_price) }}đ</span>
+      </div>
+
+      <button class="w-full mt-6 py-3 bg-black text-white rounded hover:bg-gray-800">
+        Thanh toán
+      </button>
+
+      <a href="{{ url_for('product.show_all_images') }}" class="block text-center mt-4 text-sm underline">
+        Tiếp tục mua hàng
+      </a>
+    </div>
+
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
