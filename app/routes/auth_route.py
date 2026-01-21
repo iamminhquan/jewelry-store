@@ -24,12 +24,12 @@ def show_sign_in_page():
             return redirect(url_for("auth.show_sign_in_page"))
 
         login_user(account, remember=remember)
-        
+
         # Check for safe next_url first (e.g., from @login_required redirect)
         next_url = request.args.get("next")
         if next_url and urlparse(next_url).netloc == "":
             return redirect(next_url)
-        
+
         # Role-based redirection after successful login
         # role == 1: Admin → redirect to admin dashboard
         # role == 0: Normal user → redirect to home page
