@@ -1,8 +1,8 @@
 """
-Decorators for role-based access control.
+Các decorator cho kiểm soát truy cập dựa trên vai trò.
 
-This module provides decorators to protect routes based on user roles.
-- @admin_required: Restricts access to admin users only (role == 1)
+Module này cung cấp các decorator để bảo vệ các route dựa trên vai trò người dùng.
+- @admin_required: Chỉ cho phép người dùng admin truy cập (role == 1)
 """
 
 from functools import wraps
@@ -12,24 +12,24 @@ from flask_login import current_user
 
 
 def admin_required(f):
-    """Decorator to restrict access to admin users only.
+    """Decorator để chỉ cho phép người dùng admin truy cập.
     
-    Usage:
+    Cách sử dụng:
         @app.route('/admin/dashboard')
         @login_required
         @admin_required
         def admin_dashboard():
             ...
     
-    If the user is not authenticated, Flask-Login's @login_required will handle it.
-    If the user is authenticated but not an admin (role != 1), they get a 403 flash
-    and are redirected to the home page.
+    Nếu người dùng chưa xác thực, Flask-Login's @login_required sẽ xử lý.
+    Nếu người dùng đã xác thực nhưng không phải admin (role != 1), họ sẽ nhận
+    thông báo lỗi và được chuyển hướng về trang chủ.
     
     Args:
-        f: The view function to decorate.
+        f: Hàm view cần được trang trí.
         
     Returns:
-        The decorated function.
+        Hàm đã được trang trí.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
