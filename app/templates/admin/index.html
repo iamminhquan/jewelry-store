@@ -39,9 +39,10 @@
                         class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
                         Xuất báo cáo
                     </button>
-                    <button class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600">
-                        Tạo đơn hàng
-                    </button>
+                    <a href="{{ url_for('main.show_home_page') }}"
+                        class="inline-block rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600">
+                        Trang chủ
+                    </a>
                 </div>
             </header>
             <!--nội dung chính của trang quản trị tổng quan-->
@@ -50,7 +51,8 @@
                     <div class="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
                         <p class="text-sm text-slate-500">Doanh thu hôm nay</p>
                         <p class="mt-2 text-2xl font-semibold text-slate-900">{{ revenue.formatted_amount }}</p>
-                        <p class="mt-2 text-xs {% if revenue.is_increase %}text-emerald-600{% else %}text-rose-600{% endif %}">
+                        <p
+                            class="mt-2 text-xs {% if revenue.is_increase %}text-emerald-600{% else %}text-rose-600{% endif %}">
                             {% if revenue.is_increase %}+{% endif %}{{ revenue.formatted_growth }} so với hôm qua
                         </p>
                     </div>
@@ -102,7 +104,8 @@
                             <h2 class="text-base font-semibold text-slate-900">Thông tin website</h2>
                             <p class="mt-1 text-xs text-slate-500">Quản lý thông tin liên hệ và giới thiệu</p>
                         </div>
-                        <button class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600">
+                        <button
+                            class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600">
                             Chỉnh sửa
                         </button>
                     </div>
@@ -145,17 +148,21 @@
                                 <h2 class="text-base font-semibold text-slate-900">Đơn hàng mới nhất</h2>
                                 <p class="mt-1 text-xs text-slate-500">Xem nhanh các đơn cần xử lý</p>
                             </div>
-                            <a href="{{ url_for('order.show_order_page') }}" class="text-sm font-medium text-rose-600 hover:text-rose-500">Đi tới
+                            <a href="{{ url_for('order.show_order_page') }}"
+                                class="text-sm font-medium text-rose-600 hover:text-rose-500">Đi tới
                                 đơn hàng</a>
                         </div>
                         <div class="mt-4 space-y-3 text-sm text-slate-600">
                             {% for order in recent_orders %}
                             <div class="flex items-center justify-between rounded-xl border border-slate-100 p-3">
                                 <div>
-                                    <p class="font-medium text-slate-900">#{{ order.id }} · {{ order.customer_name }}</p>
-                                    <p class="text-xs text-slate-500">{{ order.formatted_total }} · {{ order.created_at }}</p>
+                                    <p class="font-medium text-slate-900">#{{ order.id }} · {{ order.customer_name }}
+                                    </p>
+                                    <p class="text-xs text-slate-500">{{ order.formatted_total }} · {{ order.created_at
+                                        }}</p>
                                 </div>
-                                <span class="rounded-full px-3 py-1 text-xs font-medium {{ order.status_class }}">{{ order.status }}</span>
+                                <span class="rounded-full px-3 py-1 text-xs font-medium {{ order.status_class }}">{{
+                                    order.status }}</span>
                             </div>
                             {% endfor %}
                             {% if not recent_orders %}
@@ -171,13 +178,16 @@
                                 <h2 class="text-base font-semibold text-slate-900">Cảnh báo tồn kho</h2>
                                 <p class="mt-1 text-xs text-slate-500">Sản phẩm sắp hết</p>
                             </div>
-                            <a href="{{ url_for('product.show_all_products') }}" class="text-sm font-medium text-rose-600 hover:text-rose-500">Quản lý sản phẩm</a>
+                            <a href="{{ url_for('product.show_all_products') }}"
+                                class="text-sm font-medium text-rose-600 hover:text-rose-500">Quản lý sản phẩm</a>
                         </div>
                         <div class="mt-4 space-y-4 text-sm text-slate-600">
                             {% for product in low_stock_products %}
                             <div class="flex items-center justify-between">
                                 <span>{{ product.name }}</span>
-                                <span class="font-semibold {% if product.status == 'warning' %}text-amber-600{% else %}text-slate-900{% endif %}">{{ product.stock }}</span>
+                                <span
+                                    class="font-semibold {% if product.status == 'warning' %}text-amber-600{% else %}text-slate-900{% endif %}">{{
+                                    product.stock }}</span>
                             </div>
                             {% endfor %}
                             {% for product in out_of_stock_products %}

@@ -30,11 +30,7 @@ def show_sign_in_page():
         if next_url and urlparse(next_url).netloc == "":
             return redirect(next_url)
 
-        # Role-based redirection after successful login
-        # role == 1: Admin → redirect to admin dashboard
-        # role == 0: Normal user → redirect to home page
-        if account.is_admin:
-            return redirect(url_for("admin.show_dashboard_page"))
+        # Redirect all users to home page after login
         return redirect(url_for("main.show_home_page"))
 
     return render_template("auth/sign_in.html")
