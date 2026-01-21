@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ product.ten_san_pham }}{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+  <!-- HÌNH ẢNH -->
+  <div>
+    <img src="{{ url_for('static', filename='images/product/charm1.png') }}" class="w-full rounded-lg object-cover" />
+  </div>
+
+  <!-- THÔNG TIN CHÍNH -->
+  <div>
+    <h1 class="text-3xl font-bold mb-3">
+      {{ product.ten_san_pham }}
+    </h1>
+
+    <!-- TRẠNG THÁI -->
+    {% if product.so_luong > 0 %}
+    <span class="inline-block mb-4 rounded-full bg-green-100 px-4 py-1 text-green-700 text-sm">
+      Còn hàng
+    </span>
+    {% else %}
+    <span class="inline-block mb-4 rounded-full bg-red-100 px-4 py-1 text-red-700 text-sm">
+      Hết hàng
+    </span>
+    {% endif %}
+
+    <!-- GIÁ -->
+    <p class="text-2xl text-red-600 font-bold mb-4">
+      {{ product.gia_xuat }} đ
+    </p>
+
+    <!-- NÚT -->
+    <div class="flex gap-4 mb-6">
+      <button class="btn-primary" {% if product.so_luong==0 %} disabled {% endif %}>
+        Thêm vào giỏ
+      </button>
+    </div>
+
+    <!-- MÔ TẢ -->
+    <div class="border-t pt-4">
+      <h2 class="text-lg font-semibold mb-2">
+        Mô tả sản phẩm
+      </h2>
+      <p class="text-gray-600 leading-relaxed">
+        {{ product.mo_ta }}
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- THÔNG SỐ KỸ THUẬT -->
+<div class="mt-12 border-t pt-6">
+  <h2 class="text-2xl font-semibold mb-4">
+    Thông tin kỹ thuật
+  </h2>
+
+  <table class="w-full border text-sm">
+    <tr class="border-b">
+      <td class="p-3 font-medium w-1/3">Trọng lượng</td>
+      <td class="p-3">{{ product.trong_luong }} g</td>
+    </tr>
+    <tr class="border-b">
+      <td class="p-3 font-medium">Kích thước</td>
+      <td class="p-3">{{ product.ma_kich_thuoc }}</td>
+    </tr>
+    <tr class="border-b">
+      <td class="p-3 font-medium">Đơn vị tính</td>
+      <td class="p-3">{{ product.don_vi_tinh }}</td>
+    </tr>
+    <tr class="border-b">
+      <td class="p-3 font-medium">Giới tính</td>
+      <td class="p-3">
+        {% if product.gioi_tinh == 0 %}Nam
+        {% else %}Nữ
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
