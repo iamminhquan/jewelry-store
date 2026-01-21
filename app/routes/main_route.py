@@ -1,6 +1,7 @@
 from flask import Blueprint, redirect, render_template, session, url_for, request
 from flask_login import current_user, login_required, logout_user
 from app.extensions import db
+from app.services.dashboard_service import get_dashboard_data, get_website_info
 
 
 main_bp = Blueprint(
@@ -13,6 +14,30 @@ main_bp = Blueprint(
 @main_bp.route("/")
 def show_home_page():
     return render_template("index.html")
+
+
+@main_bp.route("/admin")
+@login_required
+def show_admin_dashboard():
+    # Kiểm tra quyền admin (role=1 là admin, role=0 là khách hàng)
+    if current_user.role != 1:
+        return redirect(url_for("auth.show_sign_in_page"))
+    
+    dashboard_data = get_dashboard_data()
+    website_info = get_website_info()
+    return render_template(
+        "admin/index.html",
+        revenue=dashboard_data["revenue"],
+        orders=dashboard_data["orders"],
+        customers=dashboard_data["customers"],
+        products=dashboard_data["products"],
+        categories=dashboard_data["categories"],
+        brands=dashboard_data["brands"],
+        recent_orders=dashboard_data["recent_orders"],
+        low_stock_products=dashboard_data["low_stock_products"],
+        out_of_stock_products=dashboard_data["out_of_stock_products"],
+        website_info=website_info,
+    )
 
 
 @main_bp.route("/about")
