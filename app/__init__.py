@@ -42,6 +42,8 @@ def create_app():
     from app.routes.admin.comment_route import comment_bp
     from app.routes.auth_route import auth_bp
     from app.routes.admin.admin_route import admin_route
+    from app.routes.users.search_route import search_bp
+    from app.routes.users.contact_route import user_bp
 
     # Đăng ký các Blueprint bên trên.
     app.register_blueprint(main_bp)
@@ -57,5 +59,7 @@ def create_app():
     app.register_blueprint(comment_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_route)
+    app.register_blueprint(search_bp)
+    app.register_blueprint(user_bp)
 
     return app
