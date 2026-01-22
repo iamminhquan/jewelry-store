@@ -5,16 +5,24 @@ from datetime import datetime
 class OrderDetail(db.Model):
     __tablename__ = "ChiTietDonHang"
 
-    ma_chi_tiet_don_hang = db.Column(
-        db.Integer,
-        primary_key=True,
-        autoincrement=True
-    )
+    def __init__(
+        self,
+        order_detail_id,
+        product_id,
+        quantity,
+        price,
+        total_fee,
+    ) -> None:
+        self.__order_detail_id = order_detail_id
+        self.__product_id = product_id
+        self.__quantity = quantity
+        self.__price = price
+        self.__total_fee = total_fee
+
+    ma_chi_tiet_don_hang = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     ma_don_hang = db.Column(
-        db.Integer,
-        db.ForeignKey("DonHang.ma_don_hang"),
-        nullable=False
+        db.Integer, db.ForeignKey("DonHang.ma_don_hang"), nullable=False
     )
 
     ma_san_pham = db.Column(db.Integer, nullable=False)
