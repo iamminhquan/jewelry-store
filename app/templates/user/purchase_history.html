@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Lịch sử mua hàng{% endblock %}
+{% block content %}
+
+<div class="bg-gray-50 min-h-screen py-10">
+  <div class="container mx-auto max-w-5xl px-4">
+
+    <!-- TIÊU ĐỀ -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Lịch sử mua hàng</h1>
+      <p class="text-sm text-gray-500 mt-1">Xem lại các sản phẩm bạn đã mua</p>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-2">
+          {% for category, message in messages %}
+          <div class="rounded-lg px-4 py-3 text-sm {% if category == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% elif category == 'error' %}bg-rose-50 text-rose-700 border border-rose-200{% else %}bg-slate-50 text-slate-700 border border-slate-200{% endif %}">
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if purchase_history %}
+    <!-- DANH SÁCH ĐƠN HÀNG ĐÃ HOÀN THÀNH -->
+    <div class="space-y-6">
+      {% for item in purchase_history %}
+      <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-emerald-50 to-green-50 px-6 py-4 border-b border-emerald-100">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-3">
+                <h3 class="font-semibold text-gray-800">Đơn hàng #{{ item.order.ma_don_hang }}</h3>
+                <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200">
+                  Hoàn thành
+                </span>
+              </div>
+              <p class="text-sm text-gray-500 mt-1">
+                Ngày đặt: {{ item.order.ngay_tao.strftime('%d/%m/%Y %H:%M') if item.order.ngay_tao else 'N/A' }}
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold text-emerald-600">
+                {{ "{:,.0f}₫".format(item.order.tong_tien_tam_tinh) if item.order.tong_tien_tam_tinh else '0₫' }}
+              </p>
+              {% if item.invoice %}
+              <p class="text-xs text-gray-500">Hóa đơn #{{ item.invoice.ma_hoa_don }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Products List -->
+        <div class="p-6">
+          <h4 class="text-sm font-semibold text-gray-700 mb-4">Sản phẩm đã mua</h4>
+          <div class="space-y-4">
+            {% for detail_item in item.details %}
+            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+              <!-- Product Image -->
+              {% if detail_item.product and detail_item.product.hinh_anh %}
+              <div class="w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-white border">
+                <img src="{{ url_for('static', filename=detail_item.product.hinh_anh) }}" 
+                     alt="{{ detail_item.product.ten_san_pham if detail_item.product else 'Sản phẩm' }}"
+                     class="w-full h-full object-cover">
+              </div>
+              {% else %}
+              <div class="w-16 h-16 flex-shrink-0 rounded-lg bg-gray-200 flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+              </div>
+              {% endif %}
+              
+              <!-- Product Info -->
+              <div class="flex-1 min-w-0">
+                <h5 class="font-medium text-gray-800 truncate">
+                  {{ detail_item.product.ten_san_pham if detail_item.product else 'Sản phẩm không còn tồn tại' }}
+                </h5>
+                <p class="text-sm text-gray-500">
+                  Số lượng: {{ detail_item.detail.so_luong }} x {{ "{:,.0f}₫".format(detail_item.detail.don_gia) if detail_item.detail.don_gia else '0₫' }}
+                </p>
+              </div>
+              
+              <!-- Subtotal -->
+              <div class="text-right">
+                <p class="font-semibold text-gray-800">
+                  {{ "{:,.0f}₫".format(detail_item.detail.thanh_tien) if detail_item.detail.thanh_tien else '0₫' }}
+                </p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <!-- Footer Actions -->
+        <div class="px-6 py-4 bg-gray-50 border-t flex flex-wrap items-center justify-between gap-3">
+          <a href="{{ url_for('user_order.show_order_detail', order_id=item.order.ma_don_hang) }}"
+             class="text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            Xem chi tiết đơn hàng
+          </a>
+          {% if item.invoice %}
+          <a href="{{ url_for('user_order.show_invoice_detail', invoice_id=item.invoice.ma_hoa_don) }}"
+             class="text-sm text-emerald-600 hover:text-emerald-800 hover:underline flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Xem hóa đơn
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- KHÔNG CÓ LỊCH SỬ MUA HÀNG -->
+    <div class="bg-white p-10 rounded-xl shadow-sm border text-center">
+      <div class="flex justify-center mb-4">
+        <svg class="h-16 w-16 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+        </svg>
+      </div>
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Bạn chưa có đơn hàng hoàn thành nào</h2>
+      <p class="text-sm text-gray-500 mb-6">Khi đơn hàng của bạn được giao thành công, chúng sẽ xuất hiện ở đây.</p>
+      <a href="{{ url_for('main.show_home_page') }}"
+        class="inline-block px-6 py-3 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition font-semibold">
+        Khám phá sản phẩm
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- NAVIGATION -->
+    <div class="mt-8 flex flex-wrap gap-4">
+      <a href="{{ url_for('user_order.show_orders') }}"
+        class="inline-flex items-center text-sm text-gray-600 hover:text-rose-600 transition">
+        <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Quay về danh sách đơn hàng
+      </a>
+      <a href="{{ url_for('main.show_account_page') }}"
+        class="inline-flex items-center text-sm text-gray-600 hover:text-rose-600 transition">
+        <svg class="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        Quay về tài khoản
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
