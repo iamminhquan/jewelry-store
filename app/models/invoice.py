@@ -15,3 +15,12 @@ class Invoice(db.Model):
     ngay_dat_hang = db.Column(db.DateTime, nullable=True)
 
     trang_thai = db.Column(db.SmallInteger)
+    
+    # Link to the Order that this invoice was created from
+    # NOTE: This column needs to be added to the database manually:
+    # ALTER TABLE HoaDon ADD COLUMN ma_don_hang INT NULL;
+    # ALTER TABLE HoaDon ADD INDEX idx_hoadon_donhang (ma_don_hang);
+    ma_don_hang = db.Column(db.Integer, nullable=True)
+    
+    def __repr__(self):
+        return f"<HoaDon {self.ma_hoa_don}>"

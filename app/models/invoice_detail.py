@@ -8,7 +8,7 @@ class InvoiceDetail(db.Model):
         db.Integer, primary_key=True, autoincrement=True
     )
 
-    ma_hoa_don = db.Column(db.Integer, nullable=False)
+    ma_hoa_don = db.Column(db.Integer, db.ForeignKey("HoaDon.ma_hoa_don"), nullable=False)
 
     ma_san_pham = db.Column(db.Integer, nullable=False)
 
@@ -19,3 +19,6 @@ class InvoiceDetail(db.Model):
     thanh_tien = db.Column(db.Numeric(10, 2))
 
     ngay_tao = db.Column(db.DateTime, nullable=True)
+    
+    def __repr__(self):
+        return f"<ChiTietHoaDon {self.ma_chi_tiet_hoa_don}>"
