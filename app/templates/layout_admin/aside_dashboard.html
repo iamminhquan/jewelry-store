@@ -105,7 +105,7 @@
     </a>
 
     <!-- Tài khoản -->
-    <a href="{{ url_for('account.show_account_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
+    <a href="{{ url_for('admin_account.show_account_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
       {% if 'customers' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
