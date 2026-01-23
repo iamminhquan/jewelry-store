@@ -6,6 +6,13 @@
   <div class="container mx-auto px-4 max-w-6xl">
     <form id="checkoutForm" method="POST" action="{{ url_for('user_order.create_order') }}"
       class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      {% if buy_now_product_id %}
+      <!-- Hidden fields for Buy Now -->
+      <input type="hidden" name="buy_now" value="true">
+      <input type="hidden" name="product_id" value="{{ buy_now_product_id }}">
+      <input type="hidden" name="quantity" value="{{ total_quantity }}">
+      {% endif %}
 
       <div class="lg:col-span-7 space-y-6">
 

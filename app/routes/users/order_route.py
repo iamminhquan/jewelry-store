@@ -16,10 +16,12 @@ from flask_login import current_user, login_required
 from app.constants import OrderStatus
 from app.services.invoice_detail_service import get_invoice_detail_with_product
 from app.services.invoice_service import get_invoices_by_user
+from app.models.product import Product
 from app.services.user_order_service import (
     build_purchase_history,
     cancel_user_order,
     create_order_from_cart,
+    create_order_from_product,
     get_active_cart,
     get_cart_details,
     get_related_order,
@@ -86,13 +88,16 @@ def show_order_detail(order_id: int):
 @user_order_bp.route("/", methods=["POST"])
 @login_required
 def create_order():
-    """Tạo đơn hàng mới từ giỏ hàng đang hoạt động của người dùng.
+    """Tạo đơn hàng mới từ giỏ hàng hoặc từ Buy Now.
 
     Dữ liệu form mong đợi:
         - full_name: Họ tên khách hàng (bắt buộc)
         - phone: Số điện thoại khách hàng (bắt buộc)
         - address: Địa chỉ giao hàng (bắt buộc)
         - payment_method: Phương thức thanh toán (tùy chọn)
+        - buy_now: Flag đánh dấu mua ngay (tùy chọn)
+        - product_id: Mã sản phẩm khi Buy Now (bắt buộc nếu buy_now=true)
+        - quantity: Số lượng sản phẩm khi Buy Now (tùy chọn, mặc định 1)
 
     Returns:
         Chuyển hướng đến trang chi tiết đơn hàng khi thành công.
@@ -106,22 +111,45 @@ def create_order():
     if not all([full_name, phone, address]):
         abort(400)
 
-    # Lấy giỏ hàng đang hoạt động
-    cart = get_active_cart(current_user.ma_tai_khoan)
-    if cart is None:
-        abort(404)
+    # Kiểm tra xem có phải Buy Now không
+    is_buy_now = request.form.get("buy_now") == "true"
 
-    # Lấy các sản phẩm trong giỏ hàng
-    cart_details = get_cart_details(cart.ma_gio_hang)
-    if not cart_details:
-        abort(400)
+    if is_buy_now:
+        # Xử lý Buy Now
+        product_id = request.form.get("product_id", type=int)
+        quantity = request.form.get("quantity", 1, type=int)
 
-    # Tạo đơn hàng từ giỏ hàng
-    order = create_order_from_cart(
-        user_id=current_user.ma_tai_khoan,
-        cart=cart,
-        cart_details=cart_details
-    )
+        if not product_id:
+            abort(400)
+
+        product = Product.query.get_or_404(product_id)
+
+        # Kiểm tra còn hàng không
+        if product.so_luong < quantity:
+            flash("Sản phẩm không đủ số lượng trong kho.", "error")
+            return redirect(url_for("main.show_home_page"))
+
+        # Tạo đơn hàng từ sản phẩm
+        order = create_order_from_product(
+            user_id=current_user.ma_tai_khoan,
+            product=product,
+            quantity=quantity
+        )
+    else:
+        # Xử lý đơn hàng từ giỏ hàng
+        cart = get_active_cart(current_user.ma_tai_khoan)
+        if cart is None:
+            abort(404)
+
+        cart_details = get_cart_details(cart.ma_gio_hang)
+        if not cart_details:
+            abort(400)
+
+        order = create_order_from_cart(
+            user_id=current_user.ma_tai_khoan,
+            cart=cart,
+            cart_details=cart_details
+        )
 
     return redirect(url_for("user_order.show_order_detail", order_id=order.ma_don_hang))
 

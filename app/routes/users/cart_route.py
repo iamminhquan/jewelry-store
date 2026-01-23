@@ -19,6 +19,7 @@ from app.services.user_cart_service import (
     add_product_to_cart,
     build_cart_items_for_display,
     build_checkout_items,
+    build_single_product_checkout,
     calculate_cart_totals,
     clear_cart_items,
     get_active_cart,
@@ -80,7 +81,7 @@ def show_cart_page():
 # Thêm sản phẩm vào giỏ
 # -----------------------------------------------------------------------------
 
-@cart_bp.route("/cart/add/<int:product_id>", methods=["POST"])
+@cart_bp.route("/add/<int:product_id>", methods=["POST"])
 @login_required
 def add_to_cart(product_id: int):
     """Thêm sản phẩm vào giỏ hàng.
@@ -106,7 +107,7 @@ def add_to_cart(product_id: int):
 # Cập nhật số lượng sản phẩm
 # -----------------------------------------------------------------------------
 
-@cart_bp.route("/cart/update/<int:id>/<action>")
+@cart_bp.route("/update/<int:id>/<action>")
 @login_required
 def update_cart(id: int, action: str):
     """Cập nhật số lượng sản phẩm trong giỏ hàng.
@@ -137,7 +138,7 @@ def update_cart(id: int, action: str):
 # Xóa sản phẩm khỏi giỏ
 # -----------------------------------------------------------------------------
 
-@cart_bp.route("/cart/remove/<int:id>")
+@cart_bp.route("/remove/<int:id>")
 @login_required
 def remove_cart(id: int):
     """Xóa sản phẩm khỏi giỏ hàng.
@@ -167,7 +168,7 @@ def remove_cart(id: int):
 # Xóa toàn bộ giỏ hàng
 # -----------------------------------------------------------------------------
 
-@cart_bp.route("/cart/clear")
+@cart_bp.route("/clear")
 @login_required
 def clear_cart():
     """Xóa tất cả sản phẩm trong giỏ hàng.
@@ -232,4 +233,46 @@ def show_checkout_page():
         total_price=total_price,
         total_quantity=total_quantity,
         user=current_user,
+    )
+
+
+# -----------------------------------------------------------------------------
+# Mua ngay (Buy Now)
+# -----------------------------------------------------------------------------
+
+@cart_bp.route("/buy-now/<int:product_id>", methods=["GET"])
+@login_required
+def buy_now(product_id: int):
+    """Hiển thị trang thanh toán cho một sản phẩm cụ thể (Mua ngay).
+
+    Cho phép người dùng mua trực tiếp một sản phẩm mà không cần thêm vào giỏ hàng.
+
+    Args:
+        product_id: Mã sản phẩm cần mua.
+
+    Returns:
+        Template được render với thông tin thanh toán cho sản phẩm đó.
+    """
+    product = Product.query.get_or_404(product_id)
+
+    # Kiểm tra sản phẩm còn hàng không
+    if product.so_luong <= 0:
+        return redirect(url_for("main.show_home_page"))
+
+    # Lấy số lượng từ query param (mặc định là 1)
+    quantity = request.args.get("quantity", 1, type=int)
+    if quantity < 1:
+        quantity = 1
+    if quantity > product.so_luong:
+        quantity = product.so_luong
+
+    cart_items, total_price, total_quantity = build_single_product_checkout(product, quantity)
+
+    return render_template(
+        "checkouts.html",
+        cart_items=cart_items,
+        total_price=total_price,
+        total_quantity=total_quantity,
+        user=current_user,
+        buy_now_product_id=product_id,  # Đánh dấu đây là Buy Now
     )

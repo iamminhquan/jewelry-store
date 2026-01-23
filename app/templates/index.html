@@ -47,9 +47,11 @@
         <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
         <p class="text-gray-600 mb-4">{{ product.mo_ta[:60]}}...</p>
         <div class="flex justify-between items-center">
-          <span class="text-2xl font-bold text-primary-600">{{ product.gia_xuat }}</span>
-          <a href="/product/{{ product.ma_san_pham }}" class="btn-secondary">
-            Xem chi tiết
+          <span class="text-2xl font-bold text-primary-600">{{ "{:,.0f}".format(product.gia_xuat) }} đ</span>
+          <a href="{{ url_for('cart.buy_now', product_id=product.ma_san_pham) }}" 
+             class="btn-secondary inline-flex items-center justify-center px-6 py-3 rounded-lg
+                    {% if product.so_luong == 0 %}pointer-events-none opacity-50{% endif %}">
+            Mua ngay
           </a>
         </div>
       </div>
@@ -71,9 +73,11 @@
         <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
         <p class="text-gray-600 mb-4">{{ product.mo_ta[:80]}}...</p>
         <div class="flex justify-between items-center">
-          <span class="text-2xl font-bold text-primary-600">{{ product.gia_xuat }}</span>
-          <a href="/product/{{ product.ma_san_pham }}" class="btn-secondary">
-            Xem chi tiết
+          <span class="text-2xl font-bold text-primary-600">{{ "{:,.0f}".format(product.gia_xuat) }} đ</span>
+          <a href="{{ url_for('cart.buy_now', product_id=product.ma_san_pham) }}" 
+             class="btn-secondary inline-flex items-center justify-center px-6 py-3 rounded-lg
+                    {% if product.so_luong == 0 %}pointer-events-none opacity-50{% endif %}">
+            Mua ngay
           </a>
         </div>
       </div>

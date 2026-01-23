@@ -188,6 +188,35 @@ def build_checkout_items(cart_items: list[CartDetail]) -> list[dict]:
     return result
 
 
+def build_single_product_checkout(product: Product, quantity: int = 1) -> tuple[list[dict], float, int]:
+    """Xây dựng thông tin checkout cho một sản phẩm đơn lẻ (Buy Now).
+
+    Args:
+        product: Sản phẩm cần mua ngay.
+        quantity: Số lượng sản phẩm (mặc định là 1).
+
+    Returns:
+        Tuple gồm (danh sách cart_items, tổng tiền, tổng số lượng).
+    """
+    # Lấy ảnh đầu tiên nếu có
+    image_url = None
+    if product.hinh_anhs:
+        image_url = product.hinh_anhs[0].duong_dan
+
+    cart_items = [{
+        "id": product.ma_san_pham,
+        "name": product.ten_san_pham,
+        "price": float(product.gia_xuat),
+        "quantity": quantity,
+        "image": image_url,
+    }]
+
+    total_price = float(product.gia_xuat) * quantity
+    total_quantity = quantity
+
+    return cart_items, total_price, total_quantity
+
+
 # -----------------------------------------------------------------------------
 # Phân trang
 # -----------------------------------------------------------------------------

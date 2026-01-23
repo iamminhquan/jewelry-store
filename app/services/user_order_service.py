@@ -197,6 +197,46 @@ def create_order_from_cart(user_id: int, cart: Cart, cart_details: list[CartDeta
     return order
 
 
+def create_order_from_product(user_id: int, product: Product, quantity: int = 1) -> Order:
+    """Tạo đơn hàng mới từ một sản phẩm (Buy Now).
+
+    Hàm này thực hiện:
+    1. Tạo đơn hàng với trạng thái chờ xử lý
+    2. Tạo chi tiết đơn hàng từ sản phẩm được chọn
+
+    Args:
+        user_id: Mã tài khoản người dùng.
+        product: Sản phẩm cần mua.
+        quantity: Số lượng sản phẩm (mặc định là 1).
+
+    Returns:
+        Đơn hàng vừa được tạo.
+    """
+    total = float(product.gia_xuat) * quantity
+
+    # Tạo đơn hàng
+    order = Order(
+        ma_tai_khoan=user_id,
+        tong_tien_tam_tinh=total,
+        trang_thai=OrderStatus.PENDING
+    )
+    db.session.add(order)
+    db.session.flush()  # Lấy mã đơn hàng trước khi tạo chi tiết
+
+    # Tạo chi tiết đơn hàng
+    order_detail = OrderDetail(
+        order_detail_id=order.ma_don_hang,
+        product_id=product.ma_san_pham,
+        quantity=quantity,
+        price=product.gia_xuat,
+        total_fee=total,
+    )
+    db.session.add(order_detail)
+    db.session.commit()
+
+    return order
+
+
 # -----------------------------------------------------------------------------
 # Thao tác trạng thái đơn hàng
 # -----------------------------------------------------------------------------
