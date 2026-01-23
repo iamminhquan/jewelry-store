@@ -38,5 +38,45 @@ class Product(db.Model):
         lazy="select",
     )
 
+    @property
+    def anh_chinh(self) -> str:
+        """Lấy đường dẫn hình ảnh chính của sản phẩm.
+        
+        Ưu tiên: ảnh có anh_chinh=1 > ảnh đầu tiên theo thứ tự > ảnh mặc định
+        
+        Returns:
+            str: Đường dẫn hình ảnh (không bao gồm 'static/')
+        """
+        if not self.hinh_anhs:
+            return "images/product/default.png"
+        
+        # Tìm ảnh chính (anh_chinh = 1)
+        for img in self.hinh_anhs:
+            if img.anh_chinh == 1:
+                return img.duong_dan
+        
+        # Nếu không có ảnh chính, lấy ảnh đầu tiên theo thứ tự sắp xếp
+        sorted_images = sorted(
+            self.hinh_anhs, 
+            key=lambda x: (x.thu_tu_sap_xep or 999, x.ma_hinh_anh)
+        )
+        return sorted_images[0].duong_dan if sorted_images else "images/product/default.png"
+
+    @property
+    def tat_ca_hinh_anh(self) -> list:
+        """Lấy tất cả hình ảnh của sản phẩm, sắp xếp theo thứ tự.
+        
+        Returns:
+            list: Danh sách đường dẫn hình ảnh
+        """
+        if not self.hinh_anhs:
+            return []
+        
+        sorted_images = sorted(
+            self.hinh_anhs,
+            key=lambda x: (x.thu_tu_sap_xep or 999, x.ma_hinh_anh)
+        )
+        return [img.duong_dan for img in sorted_images]
+
     def __repr__(self):
         return f"<SanPham {self.ma_san_pham} - {self.ten_san_pham}>"
