@@ -13,11 +13,11 @@ class OrderDetail(db.Model):
         price,
         total_fee,
     ) -> None:
-        self.__order_detail_id = order_detail_id
-        self.__product_id = product_id
-        self.__quantity = quantity
-        self.__price = price
-        self.__total_fee = total_fee
+        self.ma_don_hang = order_detail_id
+        self.ma_san_pham = product_id
+        self.so_luong = quantity
+        self.don_gia = price
+        self.thanh_tien = total_fee
 
     ma_chi_tiet_don_hang = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
