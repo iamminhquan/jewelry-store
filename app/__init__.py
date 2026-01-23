@@ -46,6 +46,8 @@ def create_app():
     from app.routes.users.search_route import search_bp
     from app.routes.users.contact_route import user_bp
     from app.routes.users.product_route import user_product_bp
+    from app.routes.users.cart_route import cart_bp
+    from app.routes.users.order_route import user_order_bp
 
     # Đăng ký các Blueprint bên trên.
     app.register_blueprint(main_bp)
@@ -65,5 +67,14 @@ def create_app():
     app.register_blueprint(search_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(user_product_bp)
+    app.register_blueprint(cart_bp)
+    app.register_blueprint(user_order_bp)
+
+    # Context processor để inject cart_count vào tất cả các template
+    from app.routes.users.cart_route import get_cart_count
+
+    @app.context_processor
+    def inject_cart_count():
+        return dict[str, int](cart_count=get_cart_count())
 
     return app
