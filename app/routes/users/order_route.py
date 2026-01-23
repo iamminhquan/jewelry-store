@@ -1,13 +1,13 @@
 """
-User order routes module.
+Module route đơn hàng người dùng.
 
-This blueprint handles user-facing order operations including:
-- Viewing orders list
-- Creating orders from cart
-- Viewing order details
-- Cancelling orders
-- Purchase history
-- Invoice viewing
+Blueprint này xử lý các thao tác đơn hàng phía người dùng bao gồm:
+- Xem danh sách đơn hàng
+- Tạo đơn hàng từ giỏ hàng
+- Xem chi tiết đơn hàng
+- Hủy đơn hàng
+- Lịch sử mua hàng
+- Xem hóa đơn
 """
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
@@ -37,16 +37,16 @@ user_order_bp = Blueprint(
 
 
 # -----------------------------------------------------------------------------
-# Order List & Detail Routes
+# Danh sách & Chi tiết đơn hàng
 # -----------------------------------------------------------------------------
 
 @user_order_bp.route("/", methods=["GET"])
 @login_required
 def show_orders():
-    """Display all orders for the current user.
+    """Hiển thị tất cả đơn hàng của người dùng hiện tại.
 
     Returns:
-        Rendered template with user's orders list.
+        Template được render với danh sách đơn hàng của người dùng.
     """
     orders = get_user_orders(current_user.ma_tai_khoan)
 
@@ -60,13 +60,13 @@ def show_orders():
 @user_order_bp.route("/<int:order_id>")
 @login_required
 def show_order_detail(order_id: int):
-    """Display order detail for the current user.
+    """Hiển thị chi tiết đơn hàng của người dùng hiện tại.
 
     Args:
-        order_id: The order ID to display.
+        order_id: Mã đơn hàng cần hiển thị.
 
     Returns:
-        Rendered template with order details.
+        Template được render với chi tiết đơn hàng.
     """
     order = get_user_order_or_none(order_id, current_user.ma_tai_khoan)
     if order is None:
@@ -80,25 +80,25 @@ def show_order_detail(order_id: int):
 
 
 # -----------------------------------------------------------------------------
-# Order Creation
+# Tạo đơn hàng
 # -----------------------------------------------------------------------------
 
 @user_order_bp.route("/", methods=["POST"])
 @login_required
 def create_order():
-    """Create a new order from the user's active cart.
+    """Tạo đơn hàng mới từ giỏ hàng đang hoạt động của người dùng.
 
-    Expected form data:
-        - full_name: Customer full name (required)
-        - phone: Customer phone number (required)
-        - address: Delivery address (required)
-        - payment_method: Payment method (optional)
+    Dữ liệu form mong đợi:
+        - full_name: Họ tên khách hàng (bắt buộc)
+        - phone: Số điện thoại khách hàng (bắt buộc)
+        - address: Địa chỉ giao hàng (bắt buộc)
+        - payment_method: Phương thức thanh toán (tùy chọn)
 
     Returns:
-        Redirect to order detail page on success.
-        Aborts with 400 if validation fails.
+        Chuyển hướng đến trang chi tiết đơn hàng khi thành công.
+        Trả về lỗi 400 nếu validate thất bại.
     """
-    # Validate required fields
+    # Validate các trường bắt buộc
     full_name = request.form.get("full_name")
     phone = request.form.get("phone")
     address = request.form.get("address")
@@ -106,17 +106,17 @@ def create_order():
     if not all([full_name, phone, address]):
         abort(400)
 
-    # Get active cart
+    # Lấy giỏ hàng đang hoạt động
     cart = get_active_cart(current_user.ma_tai_khoan)
     if cart is None:
         abort(404)
 
-    # Get cart items
+    # Lấy các sản phẩm trong giỏ hàng
     cart_details = get_cart_details(cart.ma_gio_hang)
     if not cart_details:
         abort(400)
 
-    # Create order from cart
+    # Tạo đơn hàng từ giỏ hàng
     order = create_order_from_cart(
         user_id=current_user.ma_tai_khoan,
         cart=cart,
@@ -127,21 +127,22 @@ def create_order():
 
 
 # -----------------------------------------------------------------------------
-# Order Cancellation
+# Hủy đơn hàng
 # -----------------------------------------------------------------------------
 
 @user_order_bp.route("/<int:order_id>/cancel", methods=["POST"])
 @login_required
 def cancel_order(order_id: int):
-    """Cancel an order (user-initiated).
+    """Hủy đơn hàng (do người dùng thực hiện).
 
-    Users can only cancel their own orders that are in Pending or Processing status.
+    Người dùng chỉ có thể hủy đơn hàng của mình khi đang ở trạng thái
+    Chờ xử lý hoặc Đang xử lý.
 
     Args:
-        order_id: The order ID to cancel.
+        order_id: Mã đơn hàng cần hủy.
 
     Returns:
-        Redirect to orders page with flash message.
+        Chuyển hướng đến trang danh sách đơn hàng kèm thông báo flash.
     """
     order = get_user_order_or_none(order_id, current_user.ma_tai_khoan)
     if order is None:
@@ -158,16 +159,16 @@ def cancel_order(order_id: int):
 
 
 # -----------------------------------------------------------------------------
-# Purchase History
+# Lịch sử mua hàng
 # -----------------------------------------------------------------------------
 
 @user_order_bp.route("/purchase-history")
 @login_required
 def show_purchase_history():
-    """Display purchase history (completed orders with invoices) for the current user.
+    """Hiển thị lịch sử mua hàng (đơn hàng đã hoàn thành kèm hóa đơn) của người dùng.
 
     Returns:
-        Rendered template with user's purchase history.
+        Template được render với lịch sử mua hàng của người dùng.
     """
     user_id = current_user.ma_tai_khoan
 
@@ -183,19 +184,19 @@ def show_purchase_history():
 
 
 # -----------------------------------------------------------------------------
-# Invoice Detail
+# Chi tiết hóa đơn
 # -----------------------------------------------------------------------------
 
 @user_order_bp.route("/invoice/<int:invoice_id>")
 @login_required
 def show_invoice_detail(invoice_id: int):
-    """Display invoice detail for the current user.
+    """Hiển thị chi tiết hóa đơn của người dùng hiện tại.
 
     Args:
-        invoice_id: The invoice ID to display.
+        invoice_id: Mã hóa đơn cần hiển thị.
 
     Returns:
-        Rendered template with invoice details.
+        Template được render với chi tiết hóa đơn.
     """
     invoice = get_user_invoice_or_none(invoice_id, current_user.ma_tai_khoan)
     if invoice is None:

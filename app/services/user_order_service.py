@@ -1,8 +1,8 @@
 """
-User order service module.
+Module service đơn hàng người dùng.
 
-This module provides business logic for user-facing order operations,
-separate from admin order operations in order_service.py.
+Module này cung cấp logic nghiệp vụ cho các thao tác đơn hàng phía người dùng,
+tách biệt với các thao tác đơn hàng admin trong order_service.py.
 """
 
 from typing import Optional
@@ -20,17 +20,17 @@ from app.models.product import Product
 
 
 # -----------------------------------------------------------------------------
-# Query Helpers
+# Hàm hỗ trợ truy vấn
 # -----------------------------------------------------------------------------
 
 def get_user_orders(user_id: int) -> list[Order]:
-    """Get all orders for a user, sorted by creation date descending.
+    """Lấy tất cả đơn hàng của người dùng, sắp xếp theo ngày tạo giảm dần.
 
     Args:
-        user_id: The user's account ID.
+        user_id: Mã tài khoản người dùng.
 
     Returns:
-        List of Order objects belonging to the user.
+        Danh sách đối tượng Order thuộc về người dùng.
     """
     return (
         Order.query
@@ -41,14 +41,14 @@ def get_user_orders(user_id: int) -> list[Order]:
 
 
 def get_user_order_or_none(order_id: int, user_id: int) -> Optional[Order]:
-    """Get an order that belongs to a specific user.
+    """Lấy đơn hàng thuộc về một người dùng cụ thể.
 
     Args:
-        order_id: The order ID to retrieve.
-        user_id: The user's account ID (for ownership verification).
+        order_id: Mã đơn hàng cần lấy.
+        user_id: Mã tài khoản người dùng (để xác thực quyền sở hữu).
 
     Returns:
-        Order if found and belongs to user, None otherwise.
+        Order nếu tìm thấy và thuộc về người dùng, None nếu không.
     """
     return Order.query.filter_by(
         ma_don_hang=order_id,
@@ -57,13 +57,13 @@ def get_user_order_or_none(order_id: int, user_id: int) -> Optional[Order]:
 
 
 def get_user_completed_orders(user_id: int) -> list[Order]:
-    """Get all completed orders for a user.
+    """Lấy tất cả đơn hàng đã hoàn thành của người dùng.
 
     Args:
-        user_id: The user's account ID.
+        user_id: Mã tài khoản người dùng.
 
     Returns:
-        List of completed Order objects, sorted by creation date descending.
+        Danh sách đối tượng Order đã hoàn thành, sắp xếp theo ngày tạo giảm dần.
     """
     return (
         Order.query
@@ -77,13 +77,13 @@ def get_user_completed_orders(user_id: int) -> list[Order]:
 
 
 def get_active_cart(user_id: int) -> Optional[Cart]:
-    """Get the active (non-completed) cart for a user.
+    """Lấy giỏ hàng đang hoạt động (chưa hoàn thành) của người dùng.
 
     Args:
-        user_id: The user's account ID.
+        user_id: Mã tài khoản người dùng.
 
     Returns:
-        Active Cart if found, None otherwise.
+        Cart đang hoạt động nếu tìm thấy, None nếu không.
     """
     return Cart.query.filter_by(
         ma_tai_khoan=user_id,
@@ -92,26 +92,26 @@ def get_active_cart(user_id: int) -> Optional[Cart]:
 
 
 def get_cart_details(cart_id: int) -> list[CartDetail]:
-    """Get all cart details for a cart.
+    """Lấy tất cả chi tiết giỏ hàng của một giỏ hàng.
 
     Args:
-        cart_id: The cart ID.
+        cart_id: Mã giỏ hàng.
 
     Returns:
-        List of CartDetail objects.
+        Danh sách đối tượng CartDetail.
     """
     return CartDetail.query.filter_by(ma_gio_hang=cart_id).all()
 
 
 def get_user_invoice_or_none(invoice_id: int, user_id: int) -> Optional[Invoice]:
-    """Get an invoice that belongs to a specific user.
+    """Lấy hóa đơn thuộc về một người dùng cụ thể.
 
     Args:
-        invoice_id: The invoice ID to retrieve.
-        user_id: The user's account ID (for ownership verification).
+        invoice_id: Mã hóa đơn cần lấy.
+        user_id: Mã tài khoản người dùng (để xác thực quyền sở hữu).
 
     Returns:
-        Invoice if found and belongs to user, None otherwise.
+        Invoice nếu tìm thấy và thuộc về người dùng, None nếu không.
     """
     return Invoice.query.filter_by(
         ma_hoa_don=invoice_id,
@@ -120,13 +120,13 @@ def get_user_invoice_or_none(invoice_id: int, user_id: int) -> Optional[Invoice]
 
 
 def get_related_order(invoice: Invoice) -> Optional[Order]:
-    """Get the order related to an invoice if it exists.
+    """Lấy đơn hàng liên quan đến hóa đơn nếu tồn tại.
 
     Args:
-        invoice: The invoice object.
+        invoice: Đối tượng hóa đơn.
 
     Returns:
-        Order if found and invoice has ma_don_hang, None otherwise.
+        Order nếu tìm thấy và hóa đơn có ma_don_hang, None nếu không.
     """
     if hasattr(invoice, 'ma_don_hang') and invoice.ma_don_hang:
         return Order.query.get(invoice.ma_don_hang)
@@ -134,17 +134,17 @@ def get_related_order(invoice: Invoice) -> Optional[Order]:
 
 
 # -----------------------------------------------------------------------------
-# Order Creation
+# Tạo đơn hàng
 # -----------------------------------------------------------------------------
 
 def calculate_cart_total(cart_details: list[CartDetail]) -> float:
-    """Calculate the total price from cart details.
+    """Tính tổng tiền từ chi tiết giỏ hàng.
 
     Args:
-        cart_details: List of CartDetail objects.
+        cart_details: Danh sách đối tượng CartDetail.
 
     Returns:
-        Total price as float.
+        Tổng tiền dạng float.
     """
     return sum(
         float(detail.so_luong) * float(detail.gia_tai_thoi_diem)
@@ -153,33 +153,33 @@ def calculate_cart_total(cart_details: list[CartDetail]) -> float:
 
 
 def create_order_from_cart(user_id: int, cart: Cart, cart_details: list[CartDetail]) -> Order:
-    """Create a new order from cart contents.
+    """Tạo đơn hàng mới từ nội dung giỏ hàng.
 
-    This function:
-    1. Creates the order with pending status
-    2. Creates order details from cart details
-    3. Marks the cart as completed (trang_thai=1)
+    Hàm này thực hiện:
+    1. Tạo đơn hàng với trạng thái chờ xử lý
+    2. Tạo chi tiết đơn hàng từ chi tiết giỏ hàng
+    3. Đánh dấu giỏ hàng là đã hoàn thành (trang_thai=1)
 
     Args:
-        user_id: The user's account ID.
-        cart: The cart to convert.
-        cart_details: The cart items.
+        user_id: Mã tài khoản người dùng.
+        cart: Giỏ hàng cần chuyển đổi.
+        cart_details: Các sản phẩm trong giỏ hàng.
 
     Returns:
-        The newly created Order.
+        Đơn hàng vừa được tạo.
     """
     total = calculate_cart_total(cart_details)
 
-    # Create order
+    # Tạo đơn hàng
     order = Order(
         ma_tai_khoan=user_id,
         tong_tien_tam_tinh=total,
         trang_thai=OrderStatus.PENDING
     )
     db.session.add(order)
-    db.session.flush()  # Get order ID before creating details
+    db.session.flush()  # Lấy mã đơn hàng trước khi tạo chi tiết
 
-    # Create order details
+    # Tạo chi tiết đơn hàng
     for detail in cart_details:
         order_detail = OrderDetail(
             order_detail_id=order.ma_don_hang,
@@ -190,7 +190,7 @@ def create_order_from_cart(user_id: int, cart: Cart, cart_details: list[CartDeta
         )
         db.session.add(order_detail)
 
-    # Mark cart as completed
+    # Đánh dấu giỏ hàng đã hoàn thành
     cart.trang_thai = 1
     db.session.commit()
 
@@ -198,19 +198,20 @@ def create_order_from_cart(user_id: int, cart: Cart, cart_details: list[CartDeta
 
 
 # -----------------------------------------------------------------------------
-# Order Status Operations
+# Thao tác trạng thái đơn hàng
 # -----------------------------------------------------------------------------
 
 def cancel_user_order(order: Order) -> bool:
-    """Cancel an order (user-initiated).
+    """Hủy đơn hàng (do người dùng thực hiện).
 
-    Only orders in PENDING or PROCESSING status can be cancelled by users.
+    Chỉ đơn hàng ở trạng thái CHỜ XỬ LÝ hoặc ĐANG XỬ LÝ mới có thể
+    được hủy bởi người dùng.
 
     Args:
-        order: The order to cancel.
+        order: Đơn hàng cần hủy.
 
     Returns:
-        True if cancelled successfully, False if not cancellable.
+        True nếu hủy thành công, False nếu không thể hủy.
     """
     if not OrderStatus.can_user_cancel(order.trang_thai):
         return False
@@ -221,20 +222,20 @@ def cancel_user_order(order: Order) -> bool:
 
 
 # -----------------------------------------------------------------------------
-# Purchase History
+# Lịch sử mua hàng
 # -----------------------------------------------------------------------------
 
 def get_order_details_with_products(order: Order) -> list[dict]:
-    """Get order details with associated product information.
+    """Lấy chi tiết đơn hàng kèm thông tin sản phẩm liên quan.
 
-    Uses the existing relationship on Order model to get details,
-    then fetches product info for each detail.
+    Sử dụng relationship có sẵn trên model Order để lấy chi tiết,
+    sau đó lấy thông tin sản phẩm cho từng chi tiết.
 
     Args:
-        order: The order to get details for.
+        order: Đơn hàng cần lấy chi tiết.
 
     Returns:
-        List of dicts with 'detail' and 'product' keys.
+        Danh sách dict với các key 'detail' và 'product'.
     """
     result = []
     for detail in order.chi_tiet_don_hang:
@@ -247,14 +248,14 @@ def get_order_details_with_products(order: Order) -> list[dict]:
 
 
 def find_invoice_for_order(invoices: list[Invoice], order_id: int) -> Optional[Invoice]:
-    """Find the matching invoice for an order from a list of invoices.
+    """Tìm hóa đơn tương ứng với đơn hàng từ danh sách hóa đơn.
 
     Args:
-        invoices: List of invoices to search.
-        order_id: The order ID to match.
+        invoices: Danh sách hóa đơn cần tìm kiếm.
+        order_id: Mã đơn hàng cần khớp.
 
     Returns:
-        Matching Invoice if found, None otherwise.
+        Invoice khớp nếu tìm thấy, None nếu không.
     """
     for invoice in invoices:
         if hasattr(invoice, 'ma_don_hang') and invoice.ma_don_hang == order_id:
@@ -263,14 +264,14 @@ def find_invoice_for_order(invoices: list[Invoice], order_id: int) -> Optional[I
 
 
 def build_purchase_history(orders: list[Order], invoices: list[Invoice]) -> list[dict]:
-    """Build purchase history data structure for template rendering.
+    """Xây dựng cấu trúc dữ liệu lịch sử mua hàng để render template.
 
     Args:
-        orders: List of completed orders.
-        invoices: List of user's invoices.
+        orders: Danh sách đơn hàng đã hoàn thành.
+        invoices: Danh sách hóa đơn của người dùng.
 
     Returns:
-        List of dicts with 'order', 'invoice', and 'details' keys.
+        Danh sách dict với các key 'order', 'invoice', và 'details'.
     """
     history = []
     for order in orders:
