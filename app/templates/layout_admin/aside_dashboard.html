@@ -115,8 +115,8 @@
     </a>
 
     <!-- Đánh giá -->
-    <a href="/admin/danhgia/" class="flex items-center gap-3 rounded-lg px-3 py-2
-      {% if 'danhgia' in request.path %}
+    <a href="{{ url_for('comment.show_comment_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
+      {% if '/comments' in request.path or 'danhgia' in request.path %}
         bg-rose-50 text-rose-600 font-medium
       {% else %}
         text-slate-600 hover:bg-slate-100

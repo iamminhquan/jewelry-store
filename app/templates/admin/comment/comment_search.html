@@ -1,10 +1,10 @@
-<!-- Trang quản lý đánh giá -->
+<!-- Trang tìm kiếm đánh giá -->
 <!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đánh giá | Jewelry Store Admin</title>
+    <title>Tìm kiếm đánh giá | Jewelry Store Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="min-h-screen bg-slate-50 text-slate-800">
@@ -18,53 +18,23 @@
           class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4"
         >
           <div>
-            <h1 class="text-xl font-semibold text-slate-900">
-              QUẢN LÝ ĐÁNH GIÁ
-            </h1>
+            <a href="{{ url_for('comment.show_comment_page') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                TÌM KIẾM ĐÁNH GIÁ
+              </h1>
+            </a>
             <p class="text-sm text-slate-500">
-              Quản lý đánh giá và phản hồi của khách hàng
+              Lọc đánh giá theo nội dung, sản phẩm, người dùng và trạng thái
             </p>
           </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <form
-              method="get"
-              action="{{ url_for('comment.search_comments_page') }}"
-              class="relative w-full max-w-xs"
-            >
-              <input
-                type="search"
-                name="keyword"
-                placeholder="Tìm theo nội dung, sản phẩm..."
-                class="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-10 pr-3 text-sm"
-              />
-              <svg
-                class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="7"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                />
-                <path
-                  d="m20 20-3.5-3.5"
-                  stroke="currentColor"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </form>
-            <a
-              href="{{ url_for('comment.search_comments_page') }}"
-              class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
-            >
-              Tìm kiếm nâng cao
-            </a>
-          </div>
+          <a
+            href="{{ url_for('comment.show_comment_page') }}"
+            class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+          >
+            Danh sách đánh giá
+          </a>
         </header>
 
         <main class="flex-1 space-y-6 px-6 py-6">
@@ -86,7 +56,111 @@
             class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
           >
             <h2 class="text-base font-semibold text-slate-900">
-              Danh sách đánh giá
+              Bộ lọc tìm kiếm
+            </h2>
+            <form
+              method="get"
+              action="{{ url_for('comment.search_comments_page') }}"
+              class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-5"
+            >
+              <div>
+                <label class="text-xs font-semibold text-slate-500">
+                  Từ khoá
+                </label>
+                <input
+                  type="text"
+                  name="keyword"
+                  value="{{ keyword or '' }}"
+                  placeholder="Nội dung, sản phẩm, người dùng..."
+                  class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-500">
+                  Trạng thái
+                </label>
+                <select
+                  name="status"
+                  class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                >
+                  <option value="" {% if not status %}selected{% endif %}>
+                    Tất cả
+                  </option>
+                  <option value="0" {% if status == '0' %}selected{% endif %}>
+                    Chờ duyệt
+                  </option>
+                  <option value="1" {% if status == '1' %}selected{% endif %}>
+                    Đã duyệt
+                  </option>
+                  <option value="2" {% if status == '2' %}selected{% endif %}>
+                    Ẩn
+                  </option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-500">
+                  Sản phẩm
+                </label>
+                <select
+                  name="product_id"
+                  class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                >
+                  <option value="" {% if not product_id %}selected{% endif %}>
+                    Tất cả sản phẩm
+                  </option>
+                  {% for product in products %}
+                  <option
+                    value="{{ product.ma_san_pham }}"
+                    {% if product_id and product_id|int == product.ma_san_pham %}selected{% endif %}
+                  >
+                    {{ product.ten_san_pham }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label class="text-xs font-semibold text-slate-500">
+                  Người đánh giá
+                </label>
+                <select
+                  name="user_id"
+                  class="mt-2 w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+                >
+                  <option value="" {% if not user_id %}selected{% endif %}>
+                    Tất cả người dùng
+                  </option>
+                  {% for account in accounts %}
+                  <option
+                    value="{{ account.ma_tai_khoan }}"
+                    {% if user_id and user_id|int == account.ma_tai_khoan %}selected{% endif %}
+                  >
+                    {{ account.ho_ten }} ({{ account.ten_tai_khoan }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="flex items-end gap-2">
+                <button
+                  type="submit"
+                  class="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-600"
+                >
+                  Tìm kiếm
+                </button>
+                <a
+                  href="{{ url_for('comment.search_comments_page') }}"
+                  class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Xoá lọc
+                </a>
+              </div>
+            </form>
+          </section>
+
+          <section
+            class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          >
+            <h2 class="text-base font-semibold text-slate-900">
+              Kết quả tìm kiếm ({{ total_results }})
             </h2>
             <div class="mt-4 overflow-x-auto">
               <table class="min-w-full text-sm">
@@ -155,7 +229,10 @@
                       {{ comment.ngay_tao.strftime('%d/%m/%Y') if comment.ngay_tao else "N/A" }}
                     </td>
                     <td class="py-3">
+                      {% set current_url = request.full_path %}
+                      {% if current_url.endswith('?') %}
                       {% set current_url = request.path %}
+                      {% endif %}
                       <div class="flex flex-wrap gap-2">
                         <a
                           href="{{ url_for('comment.show_comment_detail_page', comment_id=comment.ma_danh_gia) }}"
@@ -206,7 +283,7 @@
                   {% else %}
                   <tr>
                     <td class="py-6 text-center text-sm text-slate-500" colspan="8">
-                      Chưa có đánh giá nào.
+                      Không tìm thấy đánh giá phù hợp.
                     </td>
                   </tr>
                   {% endif %}

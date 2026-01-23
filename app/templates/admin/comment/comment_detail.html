@@ -1,0 +1,223 @@
+<!-- Trang chi tiết đánh giá -->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi tiết đánh giá | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+      <!-- Aside dashboard -->
+      {% include "layout_admin/aside_dashboard.html" %}
+
+      <!-- Content -->
+      <div class="flex flex-1 flex-col">
+        <header
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <a href="{{ url_for('comment.show_comment_page') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                CHI TIẾT ĐÁNH GIÁ
+              </h1>
+            </a>
+            <p class="text-sm text-slate-500">
+              Xem thông tin và quản lý đánh giá của khách hàng
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <a
+              href="{{ url_for('comment.show_comment_page') }}"
+              class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            >
+              Danh sách đánh giá
+            </a>
+            <a
+              href="{{ url_for('comment.search_comments_page') }}"
+              class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            >
+              Tìm kiếm
+            </a>
+          </div>
+        </header>
+
+        {% set comment = comment_data.comment %}
+        {% set account = comment_data.account %}
+        {% set product = comment_data.product %}
+
+        <main class="flex-1 space-y-6 px-6 py-6">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+          <div class="space-y-2">
+            {% for category, message in messages %}
+            <div
+              class="rounded-xl border px-4 py-3 text-sm {% if category == 'success' %} border-emerald-200 bg-emerald-50 text-emerald-700 {% elif category == 'error' %} border-rose-200 bg-rose-50 text-rose-700 {% else %} border-slate-200 bg-white text-slate-600 {% endif %}"
+            >
+              {{ message }}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% endwith %}
+
+          <section
+            class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p class="text-sm text-slate-500">Mã đánh giá</p>
+                <h2 class="text-xl font-semibold text-slate-900">
+                  #{{ comment.ma_danh_gia }}
+                </h2>
+              </div>
+              <div>
+                <span
+                  class="inline-flex items-center whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium {{ CommentStatus.get_badge_class(comment.trang_thai) }}"
+                >
+                  {{ CommentStatus.get_label(comment.trang_thai) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <div
+                class="rounded-xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <h3 class="text-sm font-semibold text-slate-900">
+                  Thông tin người đánh giá
+                </h3>
+                <div class="mt-3 space-y-2 text-sm text-slate-600">
+                  <p>
+                    <span class="font-medium text-slate-900">Họ tên:</span>
+                    {{ account.ho_ten if account else "N/A" }}
+                  </p>
+                  <p>
+                    <span class="font-medium text-slate-900">Tài khoản:</span>
+                    {{ account.ten_tai_khoan if account else "N/A" }}
+                  </p>
+                  <p>
+                    <span class="font-medium text-slate-900">Email:</span>
+                    {{ account.email if account else "N/A" }}
+                  </p>
+                  <p>
+                    <span class="font-medium text-slate-900">Mã tài khoản:</span>
+                    {{ account.ma_tai_khoan if account else "N/A" }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="rounded-xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <h3 class="text-sm font-semibold text-slate-900">
+                  Thông tin sản phẩm
+                </h3>
+                <div class="mt-3 space-y-2 text-sm text-slate-600">
+                  <p>
+                    <span class="font-medium text-slate-900">Tên sản phẩm:</span>
+                    {{ product.ten_san_pham if product else "N/A" }}
+                  </p>
+                  <p>
+                    <span class="font-medium text-slate-900">Mã sản phẩm:</span>
+                    {{ product.ma_san_pham if product else "N/A" }}
+                  </p>
+                  <p>
+                    <span class="font-medium text-slate-900">Giá bán:</span>
+                    {% if product %}
+                    {{ "{:,.0f}".format(product.gia_xuat) }} đ
+                    {% else %}
+                    N/A
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-6 lg:grid-cols-3">
+              <div class="rounded-xl border border-slate-200 p-4">
+                <p class="text-xs font-semibold text-slate-500">Rating</p>
+                <p class="mt-2 text-lg font-semibold text-slate-900">
+                  {% if comment.so_sao is defined and comment.so_sao is not none %}
+                  {{ comment.so_sao }}/5
+                  {% else %}
+                  —
+                  {% endif %}
+                </p>
+              </div>
+              <div class="rounded-xl border border-slate-200 p-4">
+                <p class="text-xs font-semibold text-slate-500">Ngày tạo</p>
+                <p class="mt-2 text-sm font-semibold text-slate-900">
+                  {{ comment.ngay_tao.strftime('%d/%m/%Y %H:%M') if comment.ngay_tao else "N/A" }}
+                </p>
+              </div>
+              <div class="rounded-xl border border-slate-200 p-4">
+                <p class="text-xs font-semibold text-slate-500">Cập nhật</p>
+                <p class="mt-2 text-sm font-semibold text-slate-900">
+                  {{ comment.ngay_chinh_sua.strftime('%d/%m/%Y %H:%M') if comment.ngay_chinh_sua else "N/A" }}
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-6 rounded-xl border border-slate-200 p-4">
+              <h3 class="text-sm font-semibold text-slate-900">
+                Nội dung đánh giá
+              </h3>
+              {% if comment.noi_dung %}
+              <p class="mt-3 text-sm leading-relaxed text-slate-700">
+                {{ comment.noi_dung }}
+              </p>
+              {% else %}
+              <p class="mt-3 text-sm text-slate-500">
+                Không có nội dung đánh giá.
+              </p>
+              {% endif %}
+            </div>
+
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+              <form
+                method="post"
+                action="{{ url_for('comment.update_comment_status_route', comment_id=comment.ma_danh_gia) }}"
+              >
+                <input type="hidden" name="next" value="{{ request.path }}" />
+                {% if comment.trang_thai == 1 %}
+                <input type="hidden" name="status" value="2" />
+                <button
+                  type="submit"
+                  class="rounded-lg border border-amber-200 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50"
+                >
+                  Ẩn đánh giá
+                </button>
+                {% else %}
+                <input type="hidden" name="status" value="1" />
+                <button
+                  type="submit"
+                  class="rounded-lg border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+                >
+                  Duyệt đánh giá
+                </button>
+                {% endif %}
+              </form>
+              <form
+                method="post"
+                action="{{ url_for('comment.delete_comment_route', comment_id=comment.ma_danh_gia) }}"
+                onsubmit="return confirm('Bạn có chắc muốn xoá đánh giá này?');"
+              >
+                <input type="hidden" name="next" value="{{ url_for('comment.show_comment_page') }}" />
+                <button
+                  type="submit"
+                  class="rounded-lg border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50"
+                >
+                  Xoá đánh giá
+                </button>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
