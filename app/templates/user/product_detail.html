@@ -33,9 +33,12 @@
 
     <!-- NÚT -->
     <div class="flex gap-4 mb-6">
-      <button class="btn-primary" {% if product.so_luong==0 %} disabled {% endif %}>
-        Thêm vào giỏ
-      </button>
+      <form method="POST" action="{{ url_for('cart.add_to_cart', product_id=product.ma_san_pham) }}">
+        <button class="btn-primary" {% if product.so_luong==0 %} disabled {% endif %}>
+          Thêm vào giỏ
+        </button>
+      </form>
+
     </div>
 
     <!-- MÔ TẢ -->
