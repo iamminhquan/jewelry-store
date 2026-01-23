@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chỉnh sửa tài khoản | Jewelry Store Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="flex min-h-screen">
+      {% include "layout_admin/aside_dashboard.html" %}
+
+      <div class="flex flex-1 flex-col">
+        <header
+          class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4"
+        >
+          <div>
+            <a href="{{ url_for('admin_account.show_account_page') }}">
+              <h1
+                class="text-xl font-semibold text-slate-900 hover:text-rose-500 transition"
+              >
+                CHỈNH SỬA TÀI KHOẢN
+              </h1>
+            </a>
+            <p class="text-sm text-slate-500">
+              Cập nhật thông tin tài khoản người dùng
+            </p>
+          </div>
+        </header>
+
+        <main class="flex-1 px-6 py-8">
+          <div class="mx-auto max-w-2xl">
+            <div
+              class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100"
+            >
+              <h2 class="mb-6 text-lg font-semibold text-slate-900">
+                Thông tin tài khoản
+              </h2>
+
+              {% if errors.general %}
+              <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                {{ errors.general }}
+              </div>
+              {% endif %}
+
+              <form method="post" class="space-y-5">
+                <div>
+                  <label class="mb-1 block text-sm font-medium text-slate-700">
+                    Mã tài khoản
+                  </label>
+                  <input
+                    type="text"
+                    value="{{ account.ma_tai_khoan }}"
+                    disabled
+                    class="w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div class="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label for="ten_tai_khoan" class="mb-1 block text-sm font-medium text-slate-700">
+                      Tên tài khoản <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="ten_tai_khoan"
+                      name="ten_tai_khoan"
+                      value="{{ account.ten_tai_khoan }}"
+                      required
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="email" class="mb-1 block text-sm font-medium text-slate-700">
+                      Email <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value="{{ account.email }}"
+                      required
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label for="password" class="mb-1 block text-sm font-medium text-slate-700">
+                    Mật khẩu mới
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    placeholder="Để trống nếu không thay đổi"
+                  />
+                  <p class="mt-1 text-xs text-slate-500">
+                    Để trống nếu không muốn thay đổi mật khẩu
+                  </p>
+                </div>
+
+                <div>
+                  <label for="ho_ten" class="mb-1 block text-sm font-medium text-slate-700">
+                    Họ và tên <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="ho_ten"
+                    name="ho_ten"
+                    value="{{ account.ho_ten }}"
+                    required
+                    class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                  />
+                </div>
+
+                <div class="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label for="ngay_sinh" class="mb-1 block text-sm font-medium text-slate-700">
+                      Ngày sinh <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      id="ngay_sinh"
+                      name="ngay_sinh"
+                      value="{{ account.ngay_sinh.strftime('%Y-%m-%d') if account.ngay_sinh else '' }}"
+                      required
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400 {% if errors.ngay_sinh %}border-red-300{% endif %}"
+                    />
+                    {% if errors.ngay_sinh %}
+                    <p class="mt-1 text-xs text-red-500">{{ errors.ngay_sinh }}</p>
+                    {% endif %}
+                  </div>
+
+                  <div>
+                    <label for="gioi_tinh" class="mb-1 block text-sm font-medium text-slate-700">
+                      Giới tính
+                    </label>
+                    <select
+                      id="gioi_tinh"
+                      name="gioi_tinh"
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    >
+                      <option value="0" {% if account.gioi_tinh == 0 %}selected{% endif %}>Nam</option>
+                      <option value="1" {% if account.gioi_tinh == 1 %}selected{% endif %}>Nữ</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label for="so_dien_thoai" class="mb-1 block text-sm font-medium text-slate-700">
+                      Số điện thoại
+                    </label>
+                    <input
+                      type="tel"
+                      id="so_dien_thoai"
+                      name="so_dien_thoai"
+                      value="{{ account.so_dien_thoai or '' }}"
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="dia_chi" class="mb-1 block text-sm font-medium text-slate-700">
+                      Địa chỉ
+                    </label>
+                    <input
+                      type="text"
+                      id="dia_chi"
+                      name="dia_chi"
+                      value="{{ account.dia_chi or '' }}"
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid gap-5 md:grid-cols-2">
+                  <div>
+                    <label for="role" class="mb-1 block text-sm font-medium text-slate-700">
+                      Vai trò
+                    </label>
+                    <select
+                      id="role"
+                      name="role"
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    >
+                      <option value="0" {% if account.role == 0 %}selected{% endif %}>User</option>
+                      <option value="1" {% if account.role == 1 %}selected{% endif %}>Admin</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label for="trang_thai" class="mb-1 block text-sm font-medium text-slate-700">
+                      Trạng thái
+                    </label>
+                    <select
+                      id="trang_thai"
+                      name="trang_thai"
+                      class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-rose-400 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    >
+                      <option value="1" {% if account.trang_thai == 1 %}selected{% endif %}>Hoạt động</option>
+                      <option value="0" {% if account.trang_thai == 0 %}selected{% endif %}>Vô hiệu</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <h3 class="text-sm font-medium text-slate-700">Thông tin bổ sung</h3>
+                  <div class="mt-2 grid gap-2 text-sm text-slate-600 md:grid-cols-2">
+                    <p>
+                      <span class="text-slate-500">Trạng thái hiện tại:</span>
+                      {% if account.trang_thai == 1 %}
+                        <span class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">
+                          Hoạt động
+                        </span>
+                      {% else %}
+                        <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+                          Vô hiệu
+                        </span>
+                      {% endif %}
+                    </p>
+                    <p>
+                      <span class="text-slate-500">Vai trò hiện tại:</span>
+                      {% if account.role == 1 %}
+                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                          Admin
+                        </span>
+                      {% else %}
+                        <span class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-800">
+                          User
+                        </span>
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-4">
+                  <a
+                    href="{{ url_for('admin_account.show_account_page') }}"
+                    class="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition"
+                  >
+                    Huỷ
+                  </a>
+                  <button
+                    type="submit"
+                    class="rounded-lg bg-rose-500 px-5 py-2 text-sm font-semibold text-white hover:bg-rose-600 transition"
+                  >
+                    Lưu thay đổi
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </body>
+</html>
