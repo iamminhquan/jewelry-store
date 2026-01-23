@@ -2,7 +2,8 @@ from datetime import datetime
 from app.extensions import db
 from app.models.order import Order
 from app.models.account import Account
-from sqlalchemy import or_, cast, func, and_
+from app.constants import OrderStatus
+from sqlalchemy import or_, cast, func
 from sqlalchemy.types import String
 
 
@@ -115,11 +116,11 @@ def get_order_page(
 
     # Thống kê theo trạng thái
     total_orders = Order.query.count()
-    cho_xac_nhan = Order.query.filter_by(trang_thai=0).count()
-    dang_xu_ly = Order.query.filter_by(trang_thai=1).count()
-    dang_giao = Order.query.filter_by(trang_thai=2).count()
-    da_giao = Order.query.filter_by(trang_thai=3).count()
-    da_huy = Order.query.filter_by(trang_thai=4).count()
+    cho_xac_nhan = Order.query.filter_by(trang_thai=OrderStatus.PENDING).count()
+    dang_xu_ly = Order.query.filter_by(trang_thai=OrderStatus.PROCESSING).count()
+    dang_giao = Order.query.filter_by(trang_thai=OrderStatus.SHIPPING).count()
+    da_giao = Order.query.filter_by(trang_thai=OrderStatus.COMPLETED).count()
+    da_huy = Order.query.filter_by(trang_thai=OrderStatus.CANCELLED).count()
 
     return (
         pagination,
@@ -148,18 +149,34 @@ def get_order_or_404(order_id: int):
 def update_order_status(order: Order, new_status: int):
     """Cập nhật trạng thái đơn hàng.
 
+    Khi trạng thái chuyển sang COMPLETED (đã giao), tự động tạo hóa đơn.
+
     Args:
         order (Order): Đơn hàng cần cập nhật.
         new_status (int): Trạng thái mới.
 
     Returns:
-        Order: Đơn hàng sau khi cập nhật.
+        tuple: (Order, Invoice or None, bool) - Đơn hàng, hóa đơn (nếu tạo), và flag cho biết có tạo hóa đơn mới không.
     """
+    old_status = order.trang_thai
     order.trang_thai = new_status
-    if new_status == 1:  # Đang xử lý
+
+    if new_status == OrderStatus.PROCESSING:
         order.ngay_dat_hang = datetime.utcnow()
+
     db.session.commit()
-    return order
+
+    # Nếu trạng thái chuyển sang COMPLETED và trước đó không phải COMPLETED
+    # thì tự động tạo hóa đơn
+    invoice = None
+    invoice_created = False
+
+    if new_status == OrderStatus.COMPLETED and old_status != OrderStatus.COMPLETED:
+        from app.services.invoice_service import create_invoice_from_order
+
+        invoice, invoice_created = create_invoice_from_order(order)
+
+    return order, invoice, invoice_created
 
 
 def confirm_order(order: Order):
@@ -171,8 +188,8 @@ def confirm_order(order: Order):
     Returns:
         Order: Đơn hàng sau khi xác nhận.
     """
-    if order.trang_thai == 0:  # Chỉ xác nhận nếu đang chờ xác nhận
-        order.trang_thai = 1
+    if order.trang_thai == OrderStatus.PENDING:
+        order.trang_thai = OrderStatus.PROCESSING
         order.ngay_dat_hang = datetime.utcnow()
         db.session.commit()
     return order
@@ -188,14 +205,20 @@ def cancel_order(order: Order):
         Order: Đơn hàng sau khi hủy.
     """
     # Chỉ cho phép hủy nếu đơn hàng chưa được giao hoặc đã hoàn thành
-    if order.trang_thai in [0, 1, 2]:  # Chờ xác nhận, Đang xử lý, Đang giao
-        order.trang_thai = 4  # Đã hủy
+    if order.trang_thai in [
+        OrderStatus.PENDING,
+        OrderStatus.PROCESSING,
+        OrderStatus.SHIPPING,
+    ]:
+        order.trang_thai = OrderStatus.CANCELLED
         db.session.commit()
     return order
 
 
 def update_order(
-    order: Order, tong_tien_tam_tinh: float = None, ngay_dat_hang: str = None
+    order: Order,
+    tong_tien_tam_tinh: float = None,
+    ngay_dat_hang: str = None,
 ):
     """Điều chỉnh thông tin đơn hàng.
 
@@ -207,8 +230,8 @@ def update_order(
     Returns:
         Order: Đơn hàng sau khi cập nhật.
     """
-    # Chỉ cho phép điều chỉnh nếu đơn hàng chưa được giao
-    if order.trang_thai not in [3, 4]:  # Chưa giao hoặc hủy
+    # Chỉ cho phép điều chỉnh nếu đơn hàng chưa được giao hoặc đã hủy
+    if order.trang_thai not in [OrderStatus.COMPLETED, OrderStatus.CANCELLED]:
         if tong_tien_tam_tinh is not None:
             order.tong_tien_tam_tinh = tong_tien_tam_tinh
 
