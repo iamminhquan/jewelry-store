@@ -12,11 +12,11 @@ class CartDetail(db.Model):
         price_at,
         created_at,
     ) -> None:
-        self.__cart_detail_id = cart_detail_id
-        self.__product_id = product_id
-        self.__quantity = quantity
-        self.__price_at = price_at
-        self.__created_at = created_at
+        self.ma_gio_hang = cart_detail_id
+        self.ma_san_pham = product_id
+        self.so_luong = quantity
+        self.gia_tai_thoi_diem = price_at
+        self.ngay_tao = created_at
 
     ma_chi_tiet_gio_hang = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
