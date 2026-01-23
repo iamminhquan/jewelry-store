@@ -203,3 +203,110 @@ def soft_delete_invoice(invoice: Invoice):
     """
     invoice.trang_thai = 3  # Trạng thái đã xóa
     db.session.commit()
+
+
+def check_ma_don_hang_column_exists():
+    """Kiểm tra xem cột ma_don_hang có tồn tại trong bảng HoaDon không.
+    
+    Returns:
+        bool: True nếu cột tồn tại, False nếu không.
+    """
+    try:
+        # Thử truy vấn với cột ma_don_hang
+        from sqlalchemy import text
+        db.session.execute(text("SELECT ma_don_hang FROM HoaDon LIMIT 1"))
+        return True
+    except Exception:
+        db.session.rollback()
+        return False
+
+
+def get_invoice_by_order_id(order_id: int):
+    """Lấy hóa đơn theo mã đơn hàng.
+
+    Args:
+        order_id (int): Mã đơn hàng.
+
+    Returns:
+        Invoice: Hóa đơn tìm thấy hoặc None nếu không có.
+    """
+    if not check_ma_don_hang_column_exists():
+        return None
+    
+    try:
+        return Invoice.query.filter_by(ma_don_hang=order_id).first()
+    except Exception:
+        # Column might not exist in database yet
+        return None
+
+
+def create_invoice_from_order(order):
+    """Tạo hóa đơn từ đơn hàng đã giao thành công.
+    
+    Hàm này sẽ kiểm tra xem đơn hàng đã có hóa đơn chưa.
+    Nếu chưa có, tạo mới hóa đơn và các chi tiết hóa đơn.
+    
+    Args:
+        order: Đơn hàng cần tạo hóa đơn.
+        
+    Returns:
+        Invoice: Hóa đơn vừa tạo hoặc hóa đơn đã tồn tại.
+        bool: True nếu tạo mới, False nếu đã tồn tại.
+    """
+    from app.models.invoice_detail import InvoiceDetail
+    from app.models.product import Product
+    
+    # Kiểm tra xem cột ma_don_hang có tồn tại không
+    has_order_column = check_ma_don_hang_column_exists()
+    
+    # Kiểm tra xem đơn hàng đã có hóa đơn chưa
+    if has_order_column:
+        existing_invoice = get_invoice_by_order_id(order.ma_don_hang)
+        if existing_invoice:
+            return existing_invoice, False
+    
+    # Tạo hóa đơn mới
+    invoice = Invoice(
+        ma_tai_khoan=order.ma_tai_khoan,
+        tong_tien_tam_tinh=order.tong_tien_tam_tinh,
+        ngay_tao=datetime.utcnow(),
+        ngay_dat_hang=order.ngay_dat_hang or order.ngay_tao,
+        trang_thai=2,  # Đã thanh toán (vì đơn hàng đã giao thành công)
+    )
+    
+    # Nếu cột ma_don_hang tồn tại, set giá trị
+    if has_order_column:
+        invoice.ma_don_hang = order.ma_don_hang
+    
+    db.session.add(invoice)
+    db.session.flush()  # Để lấy ma_hoa_don
+    
+    # Tạo chi tiết hóa đơn từ chi tiết đơn hàng
+    for order_detail in order.chi_tiet_don_hang:
+        invoice_detail = InvoiceDetail(
+            ma_hoa_don=invoice.ma_hoa_don,
+            ma_san_pham=order_detail.ma_san_pham,
+            so_luong=order_detail.so_luong,
+            don_gia=order_detail.don_gia,
+            thanh_tien=order_detail.thanh_tien,
+            ngay_tao=datetime.utcnow(),
+        )
+        db.session.add(invoice_detail)
+    
+    db.session.commit()
+    return invoice, True
+
+
+def get_invoices_by_user(user_id: int):
+    """Lấy tất cả hóa đơn của một người dùng.
+
+    Args:
+        user_id (int): Mã tài khoản người dùng.
+
+    Returns:
+        list: Danh sách hóa đơn của người dùng (loại trừ đã xóa).
+    """
+    return Invoice.query.filter(
+        Invoice.ma_tai_khoan == user_id,
+        Invoice.trang_thai != 3  # Loại trừ đã xóa
+    ).order_by(Invoice.ngay_tao.desc()).all()
