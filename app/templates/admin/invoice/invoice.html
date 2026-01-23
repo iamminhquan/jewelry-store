@@ -239,6 +239,7 @@ nội dung: chỉnh sửa điều hướng và các chức năng liên quan đ�
                 <thead class="text-left text-xs uppercase text-slate-400">
                   <tr>
                     <th class="pb-3 font-medium">Mã hóa đơn</th>
+                    <th class="pb-3 font-medium">Mã đơn hàng</th>
                     <th class="pb-3 font-medium">Khách hàng</th>
                     <th class="pb-3 font-medium">Tổng tiền</th>
                     <th class="pb-3 font-medium">Ngày tạo</th>
@@ -250,6 +251,16 @@ nội dung: chỉnh sửa điều hướng và các chức năng liên quan đ�
                   {% if invoices_with_account %} {% for item in invoices_with_account %}
                   <tr class="border-b">
                     <td class="py-3">{{ item.invoice.ma_hoa_don }}</td>
+                    <td class="py-3">
+                      {% if item.order %}
+                      <a href="{{ url_for('order.show_order_detail_page', id=item.order.ma_don_hang) }}" 
+                         class="text-blue-600 hover:text-blue-800 hover:underline">
+                        #{{ item.order.ma_don_hang }}
+                      </a>
+                      {% else %}
+                      <span class="text-slate-400">-</span>
+                      {% endif %}
+                    </td>
                     <td class="py-3 font-medium text-slate-900">
                       {{ item.account.ho_ten if item.account else 'N/A' }}
                     </td>
@@ -326,7 +337,7 @@ nội dung: chỉnh sửa điều hướng và các chức năng liên quan đ�
                   </tr>
                   {% endfor %} {% else %}
                   <tr>
-                    <td colspan="6" class="py-6 text-center text-slate-400">
+                    <td colspan="7" class="py-6 text-center text-slate-400">
                       Chưa có hóa đơn nào.
                     </td>
                   </tr>

@@ -68,6 +68,19 @@ nội dung: chỉnh sửa điều hướng và các chức năng liên quan đ�
                   </p>
                 </div>
                 <div>
+                  <p class="text-sm text-slate-500">Mã đơn hàng liên quan</p>
+                  <p class="mt-1 text-base font-medium text-slate-900">
+                    {% if order %}
+                    <a href="{{ url_for('order.show_order_detail_page', id=order.ma_don_hang) }}" 
+                       class="text-blue-600 hover:text-blue-800 hover:underline">
+                      #{{ order.ma_don_hang }}
+                    </a>
+                    {% else %}
+                    <span class="text-slate-400">Không có</span>
+                    {% endif %}
+                  </p>
+                </div>
+                <div>
                   <p class="text-sm text-slate-500">Trạng thái</p>
                   <p class="mt-1">
                     {% if invoice.trang_thai == 0 %}
