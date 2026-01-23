@@ -29,7 +29,7 @@
     <!-- DANH SÁCH SẢN PHẨM -->
     <div class="col-span-12 lg:col-span-8">
       <h1 class="text-2xl font-bold mb-6">
-        Giỏ hàng ({{ cart_items|length }} sản phẩm)
+        Giỏ hàng ({{ pagination.total_items }} sản phẩm)
       </h1>
 
       {% for item in cart_items %}
@@ -44,14 +44,15 @@
 
           <!-- SỐ LƯỢNG -->
           <div class="flex items-center mt-4 gap-3">
-            <a href="{{ url_for('main.update_cart', id=item.id, action='decrease') }}"
+            <a href="{{ url_for('cart.update_cart', id=item.id, action='decrease') }}"
+              onclick="return handleDecrease({{ item.quantity }})"
               class="px-3 py-1 border rounded hover:bg-gray-100">-</a>
 
             <span class="min-w-[32px] text-center">
               {{ item.quantity }}
             </span>
 
-            <a href="{{ url_for('main.update_cart', id=item.id, action='increase') }}"
+            <a href="{{ url_for('cart.update_cart', id=item.id, action='increase') }}"
               class="px-3 py-1 border rounded hover:bg-gray-100">+</a>
           </div>
         </div>
@@ -62,7 +63,8 @@
             {{ "{:,.0f}".format(item.price * item.quantity) }}đ
           </p>
 
-          <a href="{{ url_for('cart.remove_cart', id=item.id) }}" class="text-sm text-red-500 hover:underline">
+          <a href="{{ url_for('cart.remove_cart', id=item.id) }}" onclick="return confirmDeleteItem()"
+            class="text-sm text-red-500 hover:underline">
             Xoá
           </a>
         </div>
@@ -71,7 +73,8 @@
 
       <!-- XOÁ HẾT -->
       <div class="mt-6">
-        <a href="{{ url_for('cart.clear_cart') }}" class="text-red-600 hover:underline">
+        <a href="{{ url_for('cart.clear_cart') }}" onclick="return confirmClearCart()"
+          class="text-red-600 hover:underline">
           ❌ Xoá hết giỏ hàng
         </a>
       </div>
@@ -80,7 +83,7 @@
       {% if pagination.total_pages > 1 %}
       <div class="flex justify-center mt-8 gap-2">
         {% for p in range(1, pagination.total_pages + 1) %}
-        <a href="{{ url_for('main.show_cart_page', page=p) }}" class="px-4 py-2 border rounded
+        <a href="{{ url_for('cart.show_cart_page', page=p) }}" class="px-4 py-2 border rounded
                    {% if p == pagination.page %}bg-black text-white{% endif %}">
           {{ p }}
         </a>
@@ -103,11 +106,14 @@
         <span>{{ "{:,.0f}".format(total_price) }}đ</span>
       </div>
 
-      <button class="w-full mt-6 py-3 bg-black text-white rounded hover:bg-gray-800">
-        Thanh toán
-      </button>
+      <form action="{{ url_for('cart.show_checkout_page') }}">
+        <button type="submit" class="w-full mt-6 py-3 bg-black text-white rounded hover:bg-gray-800">
+          Thanh toán
+        </button>
+      </form>
 
-      <a href="{{ url_for('product.show_all_images') }}" class="block text-center mt-4 text-sm underline">
+
+      <a href="{{ url_for('product.show_all_products') }}" class="block text-center mt-4 text-sm underline">
         Tiếp tục mua hàng
       </a>
     </div>
@@ -116,4 +122,24 @@
   {% endif %}
 
 </div>
+
+<script>
+  function handleDecrease(quantity) {
+    // Nếu còn 1 mà bấm giảm → hỏi xoá
+    if (quantity <= 1) {
+      return confirm("Bạn có chắc muốn xoá sản phẩm này không?");
+    }
+    // Nếu > 1 → cho giảm bình thường
+    return true;
+  }
+
+  function confirmDeleteItem() {
+    return confirm("Bạn có chắc muốn xoá sản phẩm này không?");
+  }
+
+  function confirmClearCart() {
+    return confirm("Bạn có chắc muốn xoá tất cả sản phẩm không?");
+  }
+</script>
+
 {% endblock %}

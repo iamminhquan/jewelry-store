@@ -1,46 +1,596 @@
 {% extends "base.html" %}
-
-{% block title %}Tài khoản{% endblock %}
-
+{% block title %}Trang cá nhân{% endblock %}
 {% block content %}
-<div class="mx-auto w-full max-w-3xl">
-  <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Thông tin tài khoản</h1>
-        <p class="mt-2 text-sm text-slate-600">Quản lý thông tin cơ bản của bạn.</p>
+
+<div class="space-y-8">
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="space-y-2">
+        {% for category, message in messages %}
+        <div class="rounded-lg px-4 py-3 text-sm {% if category == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% elif category == 'error' %}bg-rose-50 text-rose-700 border border-rose-200{% else %}bg-slate-50 text-slate-700 border border-slate-200{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
       </div>
-      <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600">Đã đăng nhập</span>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Breadcrumb Navigation -->
+  <nav class="flex items-center gap-2 text-sm">
+    <a href="{{ url_for('main.show_home_page') }}" class="text-slate-600 hover:text-slate-900 transition">Trang chủ</a>
+    <span class="text-slate-400">></span>
+    <a href="{{ url_for('main.show_account_page') }}" class="text-slate-900 font-medium">Tài khoản của tôi</a>
+  </nav>
+
+  <!-- Layout 2 cột -->
+  <div class="grid gap-6 lg:grid-cols-2">
+    <!-- Cột trái: Thông tin cá nhân + Sản phẩm yêu thích -->
+    <div class="space-y-6">
+      <!--Linh chỉnh sửa giao diện thông tin cá nhân-->
+      <!-- Thông tin cá nhân -->
+      <div id="profile-view">
+        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100">
+          <div class="bg-gradient-to-r from-rose-50 to-pink-50 px-6 py-5 border-b border-slate-200">
+            <div class="flex items-center justify-between">
+              <h2 class="flex items-center gap-2 text-xl font-semibold text-slate-900">
+                <svg class="h-5 w-5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"></path>
+                </svg>
+                THÔNG TIN CÁ NHÂN
+              </h2>
+              <span class="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600">Đã đăng nhập</span>
+              <button onclick="toggleEdit(true)"
+                class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700 transition">
+                Chỉnh sửa
+              </button>
+            </div>
+          </div>
+          <div class="p-6">
+            <div class="grid gap-4 grid-cols-2">
+              <div
+                class="group rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition hover:border-rose-200 hover:bg-rose-50/30">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-xs font-medium uppercase tracking-wider text-slate-500">Tên tài khoản</label>
+                    <p class="mt-1 text-base font-medium text-slate-900">{{ user.ten_tai_khoan }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="group rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition hover:border-rose-200 hover:bg-rose-50/30">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM12 14a7 7 0 0 0-7 7h14a7 7 0 0 0-7-7z"></path>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-xs font-medium uppercase tracking-wider text-slate-500">Họ và tên</label>
+                    <p class="mt-1 text-base font-medium text-slate-900">{{ user.ho_ten }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="group rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition hover:border-rose-200 hover:bg-rose-50/30">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-xs font-medium uppercase tracking-wider text-slate-500">Ngày sinh</label>
+                    <p class="mt-1 text-base font-medium text-slate-900">
+                      {{ user.ngay_sinh.strftime('%d/%m/%Y') if user.ngay_sinh else 'Chưa cập nhật' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="group rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition hover:border-rose-200 hover:bg-rose-50/30">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z">
+                      </path>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-xs font-medium uppercase tracking-wider text-slate-500">Giới tính</label>
+                    <p class="mt-1 text-base font-medium text-slate-900">
+                      {% if user.gioi_tinh == 0 %}Nam{% elif user.gioi_tinh == 1 %}Nữ{% else %}Khác{% endif %}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="group rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition hover:border-rose-200 hover:bg-rose-50/30">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path
+                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                      </path>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-xs font-medium uppercase tracking-wider text-slate-500">Số điện thoại</label>
+                    <p class="mt-1 text-base font-medium text-slate-900">{{user.so_dien_thoai }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="group rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition hover:border-rose-200 hover:bg-rose-50/30">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-xs font-medium uppercase tracking-wider text-slate-500">Email</label>
+                    <p class="mt-1 text-base font-medium text-slate-900">{{user.email }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="group rounded-lg border border-slate-100 bg-slate-50/50 p-4 transition hover:border-rose-200 hover:bg-rose-50/30 col-span-2">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <div class="flex-1">
+                    <label class="text-xs font-medium uppercase tracking-wider text-slate-500">Địa chỉ</label>
+                    <p class="mt-1 text-base font-medium text-slate-900">{{ user.dia_chi if user.dia_chi else 'Chưa cập
+                      nhật' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div id="profile-edit" class="hidden">
+        <form method="POST" action="{{ url_for('main.show_account_page') }}" class="mt-6 grid grid-cols-2 gap-4">
+
+          <input name="ho_ten" value="{{ user.ho_ten }}" class="col-span-2 rounded-lg border px-4 py-2"
+            placeholder="Họ và tên">
+
+          <input name="email" value="{{ user.email }}" class="rounded-lg border px-4 py-2" placeholder="Email">
+
+          <input name="so_dien_thoai" value="{{ user.so_dien_thoai }}" class="rounded-lg border px-4 py-2"
+            placeholder="Số điện thoại">
+
+          <input type="date" name="ngay_sinh" value="{{ user.ngay_sinh.strftime('%Y-%m-%d') if user.ngay_sinh }}"
+            class="rounded-lg border px-4 py-2">
+
+          <select name="gioi_tinh" class="rounded-lg border px-4 py-2">
+            <option value="0" {% if user.gioi_tinh==0 %}selected{% endif %}>Nam</option>
+            <option value="1" {% if user.gioi_tinh==1 %}selected{% endif %}>Nữ</option>
+            <option value="2" {% if user.gioi_tinh==2 %}selected{% endif %}>Khác</option>
+          </select>
+
+          <textarea name="dia_chi" class="col-span-2 rounded-lg border px-4 py-2"
+            placeholder="Địa chỉ">{{ user.dia_chi }}</textarea>
+
+          <div class="col-span-2 flex justify-end gap-3">
+            <button type="button" onclick="toggleEdit(false)" class="rounded-lg border px-4 py-2">
+              Hủy
+            </button>
+
+            <button type="submit" class="rounded-lg bg-rose-600 px-6 py-2 text-white font-semibold hover:bg-rose-700">
+              💾 Lưu
+            </button>
+          </div>
+        </form>
+      </div>
+      <!-- Sản phẩm yêu thích -->
+      <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100">
+        <div class="bg-gradient-to-r from-rose-50 to-pink-50 px-6 py-5 border-b border-slate-200">
+          <h2 class="flex items-center gap-2 text-xl font-semibold text-slate-900">
+            <svg class="h-5 w-5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+              </path>
+            </svg>
+            SẢN PHẨM YÊU THÍCH
+          </h2>
+        </div>
+        <div class="p-6">
+          {% if favorite_products %}
+          <div class="space-y-4">
+            {% for item in favorite_products %}
+            <div
+              class="group flex gap-4 rounded-xl border border-slate-200 bg-white p-5 transition hover:border-rose-200 hover:shadow-md">
+              {% if item.image %}
+              <div
+                class="h-28 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 ring-1 ring-slate-200">
+                <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.product.ten_san_pham }}"
+                  class="h-full w-full object-cover transition group-hover:scale-105">
+              </div>
+              {% else %}
+              <div
+                class="h-28 w-28 flex-shrink-0 rounded-lg bg-gradient-to-br from-rose-100 to-rose-200 flex items-center justify-center ring-1 ring-rose-200">
+                <svg class="h-10 w-10 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+              </div>
+              {% endif %}
+              <div class="flex flex-1 flex-col justify-between gap-3">
+                <div>
+                  <h3 class="text-lg font-semibold text-slate-900 transition group-hover:text-rose-600">{{
+                    item.product.ten_san_pham }}</h3>
+                </div>
+                <div class="flex items-center justify-between">
+                  <p class="text-lg font-bold text-rose-600">
+                    {{ "{:,.0f}".format(item.product.gia_xuat) }} đ
+                  </p>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="py-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+              </path>
+            </svg>
+            <p class="mt-4 text-slate-500">Bạn chưa có sản phẩm yêu thích nào.</p>
+          </div>
+          {% endif %}
+        </div>
+      </section>
     </div>
 
-    <div class="mt-8 grid gap-4 text-sm text-slate-700 sm:grid-cols-2">
-      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <p class="text-xs uppercase tracking-wide text-slate-500">Tên đăng nhập</p>
-        <p class="mt-2 font-semibold text-slate-900">{{ user.ten_tai_khoan }}</p>
-      </div>
-      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <p class="text-xs uppercase tracking-wide text-slate-500">Họ và tên</p>
-        <p class="mt-2 font-semibold text-slate-900">{{ user.ho_ten }}</p>
-      </div>
-      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <p class="text-xs uppercase tracking-wide text-slate-500">Email</p>
-        <p class="mt-2 font-semibold text-slate-900">{{ user.email }}</p>
-      </div>
-      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <p class="text-xs uppercase tracking-wide text-slate-500">Số điện thoại</p>
-        <p class="mt-2 font-semibold text-slate-900">{{ user.so_dien_thoai }}</p>
-      </div>
-      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <p class="text-xs uppercase tracking-wide text-slate-500">Địa chỉ</p>
-        <p class="mt-2 font-semibold text-slate-900">{{ user.dia_chi }}</p>
-      </div>
-      <div class="rounded-xl border border-slate-100 bg-slate-50 p-4">
-        <p class="text-xs uppercase tracking-wide text-slate-500">Ngày sinh</p>
-        <p class="mt-2 font-semibold text-slate-900">
-          {{ user.ngay_sinh.strftime('%d/%m/%Y') if user.ngay_sinh else "—" }}
-        </p>
-      </div>
+    <!-- Cột phải: Quản lý đơn hàng + Sản phẩm đã đánh giá -->
+    <div class="space-y-6">
+      <!-- Danh sách đơn hàng theo trạng thái -->
+      <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100">
+        <div class="bg-gradient-to-r from-rose-50 to-pink-50 px-6 py-5 border-b border-slate-200">
+          <h2 class="flex items-center gap-2 text-xl font-semibold text-slate-900">
+            <svg class="h-5 w-5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            </svg>
+            ĐƠN HÀNG ĐÃ MUA
+          </h2>
+        </div>
+
+        <div class="p-6">
+          <!-- Tabs cho các trạng thái -->
+          <div class="mb-6 overflow-x-auto border-b border-slate-200">
+            <nav class="-mb-px flex min-w-max space-x-1" aria-label="Tabs">
+              <button onclick="showOrders('all')" id="tab-all"
+                class="tab-button whitespace-nowrap rounded-t-lg border-b-2 border-rose-600 bg-rose-50/50 px-4 py-3 text-sm font-medium text-rose-600 transition">
+                Tất cả
+              </button>
+              <button onclick="showOrders('pending')" id="tab-pending"
+                class="tab-button whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700">
+                Chờ xử lý
+              </button>
+              <button onclick="showOrders('processing')" id="tab-processing"
+                class="tab-button whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700">
+                Đang xử lý
+              </button>
+              <button onclick="showOrders('shipping')" id="tab-shipping"
+                class="tab-button whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700">
+                Đang giao hàng
+              </button>
+              <button onclick="showOrders('completed')" id="tab-completed"
+                class="tab-button whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700">
+                Hoàn thành
+              </button>
+              <button onclick="showOrders('cancelled')" id="tab-cancelled"
+                class="tab-button whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-4 py-3 text-sm font-medium text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700">
+                Đã hủy
+              </button>
+            </nav>
+          </div>
+
+          <!-- Danh sách đơn hàng - Tất cả -->
+          <div id="orders-all" class="orders-section">
+            {% if orders %}
+            <div class="space-y-4">
+              {% for order in orders %}
+              <div
+                class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-rose-200 hover:shadow-md">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <a href="{{ url_for('user_order.show_order_detail', order_id=order.ma_don_hang) }}" class="flex-1 space-y-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                      <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                        <svg class="h-5 w-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Đơn hàng #{{ order.ma_don_hang }}
+                      </h3>
+                      <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {{ OrderStatus.get_badge_class(order.trang_thai) }}">
+                        {{ OrderStatus.get_label(order.trang_thai) }}
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                      <span class="flex items-center gap-1.5">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="16" y1="2" x2="16" y2="6"></line>
+                          <line x1="8" y1="2" x2="8" y2="6"></line>
+                          <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        {{ order.ngay_tao.strftime('%d/%m/%Y %H:%M') if order.ngay_tao else 'N/A' }}
+                      </span>
+                      <span class="flex items-center gap-1.5 font-semibold text-slate-900">
+                        <svg class="h-4 w-4 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <line x1="12" y1="1" x2="12" y2="23"></line>
+                          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        {{ "{:,.0f}".format(order.tong_tien_tam_tinh) if order.tong_tien_tam_tinh else '0' }} đ
+                      </span>
+                    </div>
+                  </a>
+                  {% if OrderStatus.can_user_cancel(order.trang_thai) %}
+                  <form method="POST" action="{{ url_for('user_order.cancel_order', order_id=order.ma_don_hang) }}" 
+                        onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng #{{ order.ma_don_hang }}?');"
+                        class="sm:ml-4">
+                    <button type="submit"
+                      class="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-100 hover:shadow-sm border border-red-200">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      Hủy đơn hàng
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="py-12 text-center">
+              <svg class="mx-auto h-12 w-12 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <p class="mt-4 text-slate-500">Bạn chưa có đơn hàng nào.</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Danh sách đơn hàng theo từng trạng thái -->
+          {% set status_configs = [
+            ('pending', OrderStatus.PENDING, 'Chờ xử lý'),
+            ('processing', OrderStatus.PROCESSING, 'Đang xử lý'),
+            ('shipping', OrderStatus.SHIPPING, 'Đang giao hàng'),
+            ('completed', OrderStatus.COMPLETED, 'Hoàn thành'),
+            ('cancelled', OrderStatus.CANCELLED, 'Đã hủy')
+          ] %}
+          
+          {% for status_key, status_value, status_label in status_configs %}
+          <div id="orders-{{ status_key }}" class="orders-section hidden">
+            {% set status_orders = orders | selectattr('trang_thai', 'equalto', status_value) | list %}
+            {% if status_orders %}
+            <div class="space-y-4">
+              {% for order in status_orders %}
+              <div
+                class="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-rose-200 hover:shadow-md">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <a href="{{ url_for('user_order.show_order_detail', order_id=order.ma_don_hang) }}" class="flex-1 space-y-3">
+                    <div class="flex flex-wrap items-center gap-3">
+                      <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900">
+                        <svg class="h-5 w-5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Đơn hàng #{{ order.ma_don_hang }}
+                      </h3>
+                      <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold {{ OrderStatus.get_badge_class(order.trang_thai) }}">
+                        {{ OrderStatus.get_label(order.trang_thai) }}
+                      </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-4 text-sm text-slate-600">
+                      <span class="flex items-center gap-1.5">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                          <line x1="16" y1="2" x2="16" y2="6"></line>
+                          <line x1="8" y1="2" x2="8" y2="6"></line>
+                          <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        {{ order.ngay_tao.strftime('%d/%m/%Y %H:%M') if order.ngay_tao else 'N/A' }}
+                      </span>
+                      <span class="flex items-center gap-1.5 font-semibold text-slate-900">
+                        <svg class="h-4 w-4 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2">
+                          <line x1="12" y1="1" x2="12" y2="23"></line>
+                          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        {{ "{:,.0f}".format(order.tong_tien_tam_tinh) if order.tong_tien_tam_tinh else '0' }} đ
+                      </span>
+                    </div>
+                  </a>
+                  {% if OrderStatus.can_user_cancel(order.trang_thai) %}
+                  <form method="POST" action="{{ url_for('user_order.cancel_order', order_id=order.ma_don_hang) }}" 
+                        onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng #{{ order.ma_don_hang }}?');"
+                        class="sm:ml-4">
+                    <button type="submit"
+                      class="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-medium text-red-700 transition hover:bg-red-100 hover:shadow-sm border border-red-200">
+                      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                      Hủy đơn hàng
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="py-12 text-center">
+              <svg class="mx-auto h-12 w-12 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              </svg>
+              <p class="mt-4 text-slate-500">Không có đơn hàng nào ở trạng thái này.</p>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Sản phẩm đã đánh giá -->
+      <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ring-1 ring-slate-100">
+        <div class="bg-gradient-to-r from-rose-50 to-pink-50 px-6 py-5 border-b border-slate-200">
+          <h2 class="flex items-center gap-2 text-xl font-semibold text-slate-900">
+            <svg class="h-5 w-5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            SẢN PHẨM ĐÃ ĐÁNH GIÁ
+          </h2>
+        </div>
+        <div class="p-6">
+          {% if rated_products %}
+          <div class="space-y-4">
+            {% for item in rated_products %}
+            <div
+              class="group flex gap-4 rounded-xl border border-slate-200 bg-white p-5 transition hover:border-rose-200 hover:shadow-md">
+              {% if item.image %}
+              <div
+                class="h-28 w-28 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 ring-1 ring-slate-200">
+                <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.product.ten_san_pham }}"
+                  class="h-full w-full object-cover transition group-hover:scale-105">
+              </div>
+              {% else %}
+              <div
+                class="h-28 w-28 flex-shrink-0 rounded-lg bg-gradient-to-br from-rose-100 to-rose-200 flex items-center justify-center ring-1 ring-rose-200">
+                <svg class="h-10 w-10 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                </svg>
+              </div>
+              {% endif %}
+              <div class="flex flex-1 flex-col justify-between gap-3">
+                <div>
+                  <h3 class="text-lg font-semibold text-slate-900 transition group-hover:text-rose-600">{{
+                    item.product.ten_san_pham }}</h3>
+                  <div class="mt-2 flex items-center gap-2 text-sm text-slate-600">
+                    <svg class="h-4 w-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+                      <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z">
+                      </path>
+                    </svg>
+                    <span>Đánh giá ngày: {{ item.comment.ngay_tao.strftime('%d/%m/%Y') if item.comment.ngay_tao else
+                      'N/A' }}</span>
+                  </div>
+                  {% if item.comment.noi_dung %}
+                  <p class="mt-2 text-sm leading-relaxed text-slate-700 line-clamp-2">{{ item.comment.noi_dung }}</p>
+                  {% endif %}
+                </div>
+                <div class="flex items-center justify-between">
+                  <p class="text-lg font-bold text-rose-600">
+                    {{ "{:,.0f}".format(item.product.gia_xuat) }} đ
+                  </p>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="py-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+              </polygon>
+            </svg>
+            <p class="mt-4 text-slate-500">Bạn chưa đánh giá sản phẩm nào.</p>
+          </div>
+          {% endif %}
+        </div>
+      </section>
     </div>
   </div>
+
+  <!-- Nút Đăng xuất -->
+  <div class="flex justify-end -mt-2">
+    <a href="{{ url_for('main.logout') }}"
+      class="rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold uppercase tracking-wide text-slate-900 shadow-sm transition hover:bg-slate-50">
+      Đăng xuất
+    </a>
+  </div>
 </div>
+
+<script>
+  function showOrders(status) {
+    // Ẩn tất cả các section
+    document.querySelectorAll('.orders-section').forEach(section => {
+      section.classList.add('hidden');
+    });
+
+    // Ẩn tất cả các tab active
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.classList.remove('border-rose-600', 'bg-rose-50/50', 'text-rose-600');
+      button.classList.add('border-transparent', 'text-slate-500');
+    });
+
+    // Hiển thị section được chọn
+    const targetSection = document.getElementById('orders-' + status);
+    if (targetSection) {
+      targetSection.classList.remove('hidden');
+    }
+
+    // Kích hoạt tab được chọn
+    const targetTab = document.getElementById('tab-' + status);
+    if (targetTab) {
+      targetTab.classList.remove('border-transparent', 'text-slate-500');
+      targetTab.classList.add('border-rose-600', 'bg-rose-50/50', 'text-rose-600');
+    }
+  }
+  function toggleEdit(isEdit) {
+    document.getElementById("profile-view").classList.toggle("hidden", isEdit)
+    document.getElementById("profile-edit").classList.toggle("hidden", !isEdit)
+  }
+</script>
+
+<style>
+  .tab-button {
+    transition: all 0.2s ease-in-out;
+  }
+</style>
 {% endblock %}
