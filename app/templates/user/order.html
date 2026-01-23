@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block title %}Chi tiết đơn hàng #{{ order.ma_don_hang }}{% endblock %}
+{% block content %}
+
+<div class="bg-gray-50 min-h-screen py-10">
+  <div class="container mx-auto max-w-4xl px-4">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-2">
+          {% for category, message in messages %}
+          <div class="rounded-lg px-4 py-3 text-sm {% if category == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% elif category == 'error' %}bg-rose-50 text-rose-700 border border-rose-200{% else %}bg-slate-50 text-slate-700 border border-slate-200{% endif %}">
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- HEADER WITH STATUS -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-gray-800 mb-2">
+            Đơn hàng #{{ order.ma_don_hang }}
+          </h2>
+          <p class="text-sm text-gray-500">
+            {% if order.trang_thai == OrderStatus.PENDING %}
+            Đơn hàng đang chờ xử lý. Chúng tôi sẽ xác nhận trong thời gian sớm nhất.
+            {% elif order.trang_thai == OrderStatus.PROCESSING %}
+            Đơn hàng đang được xử lý và chuẩn bị giao cho đơn vị vận chuyển.
+            {% elif order.trang_thai == OrderStatus.SHIPPING %}
+            Đơn hàng đang trên đường giao đến bạn. Vui lòng chú ý điện thoại.
+            {% elif order.trang_thai == OrderStatus.COMPLETED %}
+            Đơn hàng đã được giao thành công. Cảm ơn bạn đã mua hàng!
+            {% elif order.trang_thai == OrderStatus.CANCELLED %}
+            Đơn hàng đã bị hủy.
+            {% else %}
+            Trạng thái đơn hàng không xác định.
+            {% endif %}
+          </p>
+        </div>
+        <!-- Status Badge -->
+        <span class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-full {{ OrderStatus.get_badge_class(order.trang_thai) }}">
+          {{ OrderStatus.get_label(order.trang_thai) }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ORDER STATUS TIMELINE -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border mb-6">
+      <h3 class="font-bold text-lg mb-4">Trạng thái đơn hàng</h3>
+      <div class="flex items-center justify-between relative">
+        <!-- Progress Line -->
+        <div class="absolute left-0 right-0 top-5 h-1 bg-slate-200 -z-10">
+          <div class="h-full bg-rose-500 transition-all duration-300"
+               style="width: {% if order.trang_thai == OrderStatus.CANCELLED %}0{% elif order.trang_thai == OrderStatus.PENDING %}0{% elif order.trang_thai == OrderStatus.PROCESSING %}33{% elif order.trang_thai == OrderStatus.SHIPPING %}66{% elif order.trang_thai == OrderStatus.COMPLETED %}100{% endif %}%;">
+          </div>
+        </div>
+        
+        <!-- Step 1: Pending -->
+        <div class="flex flex-col items-center z-10">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold
+            {% if order.trang_thai >= OrderStatus.PENDING and order.trang_thai != OrderStatus.CANCELLED %}bg-rose-500 text-white{% else %}bg-slate-200 text-slate-500{% endif %}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+          </div>
+          <span class="mt-2 text-xs font-medium {% if order.trang_thai >= OrderStatus.PENDING and order.trang_thai != OrderStatus.CANCELLED %}text-rose-600{% else %}text-slate-400{% endif %}">Chờ xử lý</span>
+        </div>
+        
+        <!-- Step 2: Processing -->
+        <div class="flex flex-col items-center z-10">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold
+            {% if order.trang_thai >= OrderStatus.PROCESSING and order.trang_thai != OrderStatus.CANCELLED %}bg-rose-500 text-white{% else %}bg-slate-200 text-slate-500{% endif %}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </div>
+          <span class="mt-2 text-xs font-medium {% if order.trang_thai >= OrderStatus.PROCESSING and order.trang_thai != OrderStatus.CANCELLED %}text-rose-600{% else %}text-slate-400{% endif %}">Đang xử lý</span>
+        </div>
+        
+        <!-- Step 3: Shipping -->
+        <div class="flex flex-col items-center z-10">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold
+            {% if order.trang_thai >= OrderStatus.SHIPPING and order.trang_thai != OrderStatus.CANCELLED %}bg-rose-500 text-white{% else %}bg-slate-200 text-slate-500{% endif %}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+            </svg>
+          </div>
+          <span class="mt-2 text-xs font-medium {% if order.trang_thai >= OrderStatus.SHIPPING and order.trang_thai != OrderStatus.CANCELLED %}text-rose-600{% else %}text-slate-400{% endif %}">Đang giao</span>
+        </div>
+        
+        <!-- Step 4: Completed -->
+        <div class="flex flex-col items-center z-10">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold
+            {% if order.trang_thai == OrderStatus.COMPLETED %}bg-emerald-500 text-white{% elif order.trang_thai == OrderStatus.CANCELLED %}bg-red-500 text-white{% else %}bg-slate-200 text-slate-500{% endif %}">
+            {% if order.trang_thai == OrderStatus.CANCELLED %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            {% else %}
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            {% endif %}
+          </div>
+          <span class="mt-2 text-xs font-medium {% if order.trang_thai == OrderStatus.COMPLETED %}text-emerald-600{% elif order.trang_thai == OrderStatus.CANCELLED %}text-red-600{% else %}text-slate-400{% endif %}">
+            {% if order.trang_thai == OrderStatus.CANCELLED %}Đã hủy{% else %}Hoàn thành{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TÓM TẮT ĐƠN -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border mb-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+      <div>
+        <p class="text-gray-500">Mã đơn hàng</p>
+        <p class="font-semibold">#{{ order.ma_don_hang }}</p>
+      </div>
+      <div>
+        <p class="text-gray-500">Ngày đặt</p>
+        <p class="font-semibold">
+          {{ order.ngay_tao.strftime('%d/%m/%Y %H:%M') if order.ngay_tao else 'N/A' }}
+        </p>
+      </div>
+      <div>
+        <p class="text-gray-500">Tổng cộng</p>
+        <p class="font-semibold text-rose-600">
+          {{ "{:,.0f}₫".format(order.tong_tien_tam_tinh) if order.tong_tien_tam_tinh else '0₫' }}
+        </p>
+      </div>
+      <div>
+        <p class="text-gray-500">Thanh toán</p>
+        <p class="font-semibold">Thanh toán khi nhận hàng</p>
+      </div>
+    </div>
+
+    <!-- CHI TIẾT ĐƠN -->
+    <div class="bg-white p-6 rounded-xl shadow-sm border mb-8">
+      <h3 class="font-bold text-lg mb-4">Chi tiết đơn hàng</h3>
+
+      <table class="w-full text-sm">
+        <thead class="border-b">
+          <tr class="text-left text-gray-500">
+            <th class="py-2">Sản phẩm</th>
+            <th class="py-2 text-right">Thành tiền</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for detail in order.chi_tiet_don_hang %}
+          <tr class="border-b">
+            <td class="py-3">
+              {{ detail.ten_san_pham }}
+              <span class="text-gray-500">
+                (x{{ detail.so_luong }})
+              </span>
+            </td>
+            <td class="py-3 text-right">
+              {{ "{:,.0f}₫".format(detail.thanh_tien) }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td class="py-3 font-semibold">Tổng cộng</td>
+            <td class="py-3 text-right font-semibold text-rose-600">
+              {{ "{:,.0f}₫".format(order.tong_tien_tam_tinh) if order.tong_tien_tam_tinh else '0₫' }}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="mt-4 text-xs text-gray-500 italic">
+        Lưu ý: Vui lòng kiểm tra điện thoại khi nhận hàng. Cảm ơn bạn đã ủng hộ!
+      </div>
+    </div>
+
+    <!-- ACTION -->
+    <div class="flex flex-col sm:flex-row justify-between gap-4">
+      <div class="flex gap-3">
+        <a href="{{ url_for('user_order.show_orders') }}"
+          class="px-6 py-3 border border-slate-300 rounded-lg text-center hover:bg-gray-100 transition flex items-center gap-2">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Danh sách đơn hàng
+        </a>
+        
+        {% if OrderStatus.can_user_cancel(order.trang_thai) %}
+        <form method="POST" action="{{ url_for('user_order.cancel_order', order_id=order.ma_don_hang) }}"
+              onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng #{{ order.ma_don_hang }}?');">
+          <button type="submit"
+            class="px-6 py-3 bg-red-50 text-red-700 border border-red-200 rounded-lg text-center hover:bg-red-100 transition flex items-center gap-2">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Hủy đơn hàng
+          </button>
+        </form>
+        {% endif %}
+      </div>
+
+      <a href="{{ url_for('main.show_home_page') }}"
+        class="px-6 py-3 bg-rose-600 text-white rounded-lg text-center hover:bg-rose-700 transition font-semibold flex items-center justify-center gap-2">
+        Tiếp tục mua hàng
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
