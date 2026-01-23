@@ -3,7 +3,9 @@ from flask_login import current_user, login_required, logout_user
 from app.extensions import db
 from app.services.dashboard_service import get_dashboard_data, get_website_info
 from app.models.product import Product
+from app.models.order import Order
 from app.services.user_product_service import get_best_seller_products, get_new_products
+from app.constants import OrderStatus
 
 main_bp = Blueprint(
     "main",
@@ -99,35 +101,17 @@ def show_account_page():
 
         db.session.commit()
 
+    # Get user's orders
+    orders = Order.query.filter_by(
+        ma_tai_khoan=current_user.ma_tai_khoan
+    ).order_by(Order.ngay_tao.desc()).all()
+
     return render_template(
         "account.html",
         user=current_user,
+        orders=orders,
+        OrderStatus=OrderStatus,
     )
-
-
-@main_bp.route("/cart", methods=["GET"])
-@login_required
-def show_cart_page():
-    cart_items = session.get("cart", [])
-
-    total_price = sum(item["price"] * item["quantity"] for item in cart_items)
-
-    pagination = {"page": 1, "total_pages": 1}
-
-    return render_template(
-        "cart.html",
-        cart_items=cart_items,
-        total_price=total_price,
-        pagination=pagination,
-        user=current_user,
-    )
-
-
-@main_bp.route("/checkouts", methods=["GET", "POST"])
-@login_required
-def show_checkouts_page():
-    """Trang thanh toán"""
-    return render_template("/checkouts.html")
 
 
 @main_bp.route("/logout", methods=["GET"])
