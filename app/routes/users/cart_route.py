@@ -1,11 +1,36 @@
-from flask import Blueprint, redirect, render_template, url_for, request
+"""
+Module route giỏ hàng người dùng.
+
+Blueprint này xử lý các thao tác giỏ hàng phía người dùng bao gồm:
+- Xem giỏ hàng
+- Thêm sản phẩm vào giỏ
+- Cập nhật số lượng sản phẩm
+- Xóa sản phẩm khỏi giỏ
+- Xóa toàn bộ giỏ hàng
+- Trang thanh toán
+"""
+
+from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
-from app.models.product import Product
-from app.models.cart import Cart
-from app.models.cart_detail import CartDetail
+
 from app.extensions import db
-from datetime import datetime
-import math
+from app.models.product import Product
+from app.services.user_cart_service import (
+    add_product_to_cart,
+    build_cart_items_for_display,
+    build_checkout_items,
+    calculate_cart_totals,
+    clear_cart_items,
+    get_active_cart,
+    get_cart_item,
+    get_cart_item_count,
+    get_cart_items,
+    get_or_create_active_cart,
+    paginate_items,
+    remove_cart_item,
+    update_cart_item_quantity,
+    update_cart_modified_time,
+)
 
 cart_bp = Blueprint(
     "cart",
@@ -14,51 +39,34 @@ cart_bp = Blueprint(
 )
 
 
+# -----------------------------------------------------------------------------
+# Xem giỏ hàng
+# -----------------------------------------------------------------------------
+
 @cart_bp.route("/", methods=["GET"])
 @login_required
 def show_cart_page():
-    # Lấy giỏ hàng từ Database.
-    if not current_user.is_authenticated:
-        return "1"
+    """Hiển thị trang giỏ hàng của người dùng.
 
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan, trang_thai=0
-    ).first()
+    Hỗ trợ phân trang qua query param 'page'.
+
+    Returns:
+        Template được render với danh sách sản phẩm trong giỏ hàng.
+    """
+    cart = get_active_cart(current_user.ma_tai_khoan)
 
     cart_items_all = []
-    total_price = 0
+    total_price = 0.0
 
     if cart:
-        items = CartDetail.query.filter_by(ma_gio_hang=cart.ma_gio_hang).all()
+        items = get_cart_items(cart.ma_gio_hang)
+        cart_items_all = build_cart_items_for_display(items)
+        total_price, _ = calculate_cart_totals(items)
 
-        for item in items:
-            cart_items_all.append(
-                {
-                    "id": item.ma_san_pham,
-                    "quantity": item.so_luong,
-                    "price": float(item.gia_tai_thoi_diem),
-                }
-            )
-            total_price += item.so_luong * float(item.gia_tai_thoi_diem)
-
-    # Phân trang.
-    PER_PAGE = 5
+    # Phân trang
     page = int(request.args.get("page", 1))
+    cart_items, pagination = paginate_items(cart_items_all, page)
 
-    total_items = len(cart_items_all)
-    total_pages = math.ceil(total_items / PER_PAGE) if total_items else 1
-
-    start = (page - 1) * PER_PAGE
-    end = start + PER_PAGE
-    cart_items = cart_items_all[start:end]
-
-    pagination = {
-        "page": page,
-        "total_pages": total_pages,
-        "total_items": total_items,
-    }
-
-    # Kết xuất ra giao diện.
     return render_template(
         "cart.html",
         cart_items=cart_items,
@@ -68,173 +76,155 @@ def show_cart_page():
     )
 
 
+# -----------------------------------------------------------------------------
+# Thêm sản phẩm vào giỏ
+# -----------------------------------------------------------------------------
+
 @cart_bp.route("/cart/add/<int:product_id>", methods=["POST"])
 @login_required
-def add_to_cart(product_id):
+def add_to_cart(product_id: int):
+    """Thêm sản phẩm vào giỏ hàng.
+
+    Nếu sản phẩm đã có trong giỏ, tăng số lượng lên 1.
+    Nếu giỏ hàng chưa tồn tại, tạo mới.
+
+    Args:
+        product_id: Mã sản phẩm cần thêm.
+
+    Returns:
+        Chuyển hướng đến trang giỏ hàng.
+    """
     product = Product.query.get_or_404(product_id)
+    cart = get_or_create_active_cart(current_user.ma_tai_khoan)
 
-    # Lấy giỏ hàng hiện tại đang sử dụng.
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan, trang_thai=0
-    ).first()
-
-    if not cart:
-        cart = Cart(
-            account_id=current_user.ma_tai_khoan,
-            created_at=datetime.utcnow(),
-            status=0,
-        )
-        db.session.add(cart)
-        db.session.commit()  # để có ma_gio_hang
-
-    # Kiểm tra sản phẩm trong giỏ hàng
-    cart_item = CartDetail.query.filter_by(
-        ma_gio_hang=cart.ma_gio_hang, ma_san_pham=product.ma_san_pham
-    ).first()
-
-    if cart_item:
-        cart_item.so_luong += 1
-    else:
-        cart_item = CartDetail(
-            cart_detail_id=cart.ma_gio_hang,
-            product_id=product.ma_san_pham,
-            quantity=1,
-            price_at=product.gia_xuat,
-            created_at=datetime.utcnow(),
-        )
-        db.session.add(cart_item)
-
-    cart.ngay_chinh_sua = datetime.utcnow()
-    db.session.commit()
+    add_product_to_cart(cart, product)
 
     return redirect(url_for("cart.show_cart_page"))
 
+
+# -----------------------------------------------------------------------------
+# Cập nhật số lượng sản phẩm
+# -----------------------------------------------------------------------------
 
 @cart_bp.route("/cart/update/<int:id>/<action>")
 @login_required
-def update_cart(id, action):
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan, trang_thai=0
-    ).first()
+def update_cart(id: int, action: str):
+    """Cập nhật số lượng sản phẩm trong giỏ hàng.
 
-    if not cart:
+    Args:
+        id: Mã sản phẩm cần cập nhật.
+        action: Hành động ('increase' để tăng, 'decrease' để giảm).
+
+    Returns:
+        Chuyển hướng đến trang giỏ hàng.
+    """
+    cart = get_active_cart(current_user.ma_tai_khoan)
+    if cart is None:
         return redirect(url_for("cart.show_cart_page"))
 
-    item = CartDetail.query.filter_by(
-        ma_gio_hang=cart.ma_gio_hang, ma_san_pham=id
-    ).first()
-
-    if not item:
+    cart_item = get_cart_item(cart.ma_gio_hang, id)
+    if cart_item is None:
         return redirect(url_for("cart.show_cart_page"))
 
-    if action == "increase":
-        item.so_luong += 1
-
-    elif action == "decrease":
-        item.so_luong -= 1
-        if item.so_luong <= 0:
-            db.session.delete(item)
-
-    cart.ngay_chinh_sua = datetime.utcnow()
+    update_cart_item_quantity(cart_item, action)
+    update_cart_modified_time(cart)
     db.session.commit()
 
     return redirect(url_for("cart.show_cart_page"))
 
 
+# -----------------------------------------------------------------------------
+# Xóa sản phẩm khỏi giỏ
+# -----------------------------------------------------------------------------
+
 @cart_bp.route("/cart/remove/<int:id>")
 @login_required
-def remove_cart(id):
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan, trang_thai=0
-    ).first()
+def remove_cart(id: int):
+    """Xóa sản phẩm khỏi giỏ hàng.
 
-    if not cart:
+    Args:
+        id: Mã sản phẩm cần xóa.
+
+    Returns:
+        Chuyển hướng đến trang giỏ hàng.
+    """
+    cart = get_active_cart(current_user.ma_tai_khoan)
+    if cart is None:
         return redirect(url_for("cart.show_cart_page"))
 
-    item = CartDetail.query.filter_by(
-        ma_gio_hang=cart.ma_gio_hang, ma_san_pham=id
-    ).first()
+    cart_item = get_cart_item(cart.ma_gio_hang, id)
+    if cart_item is None:
+        return redirect(url_for("cart.show_cart_page"))
 
-    if item:
-        db.session.delete(item)
-        cart.ngay_chinh_sua = datetime.utcnow()
-        db.session.commit()
+    remove_cart_item(cart_item)
+    update_cart_modified_time(cart)
+    db.session.commit()
 
     return redirect(url_for("cart.show_cart_page"))
 
+
+# -----------------------------------------------------------------------------
+# Xóa toàn bộ giỏ hàng
+# -----------------------------------------------------------------------------
 
 @cart_bp.route("/cart/clear")
 @login_required
 def clear_cart():
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan, trang_thai=0
-    ).first()
+    """Xóa tất cả sản phẩm trong giỏ hàng.
 
-    if cart:
-        CartDetail.query.filter_by(ma_gio_hang=cart.ma_gio_hang).delete()
+    Returns:
+        Chuyển hướng đến trang giỏ hàng.
+    """
+    cart = get_active_cart(current_user.ma_tai_khoan)
+    if cart is None:
+        return redirect(url_for("cart.show_cart_page"))
 
-        cart.ngay_chinh_sua = datetime.utcnow()
-        db.session.commit()
+    clear_cart_items(cart.ma_gio_hang)
+    update_cart_modified_time(cart)
+    db.session.commit()
 
     return redirect(url_for("cart.show_cart_page"))
 
 
-def get_cart_count():
+# -----------------------------------------------------------------------------
+# Hàm tiện ích (exported cho các module khác)
+# -----------------------------------------------------------------------------
+
+def get_cart_count() -> int:
+    """Lấy số lượng sản phẩm trong giỏ hàng của người dùng hiện tại.
+
+    Hàm này được dùng cho việc hiển thị badge số lượng giỏ hàng.
+
+    Returns:
+        Số lượng sản phẩm trong giỏ hàng, 0 nếu chưa đăng nhập.
+    """
     if not current_user.is_authenticated:
         return 0
 
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan, trang_thai=0
-    ).first()
+    return get_cart_item_count(current_user.ma_tai_khoan)
 
-    if not cart:
-        return 0
 
-    return CartDetail.query.filter_by(ma_gio_hang=cart.ma_gio_hang).count()
-
+# -----------------------------------------------------------------------------
+# Trang thanh toán
+# -----------------------------------------------------------------------------
 
 @cart_bp.route("/checkouts", methods=["GET"])
 @login_required
 def show_checkout_page():
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan,
-        trang_thai=0,
-    ).first()
+    """Hiển thị trang thanh toán.
 
-    if not cart:
+    Nếu giỏ hàng trống hoặc không tồn tại, chuyển hướng về trang giỏ hàng.
+
+    Returns:
+        Template được render với thông tin thanh toán.
+    """
+    cart = get_active_cart(current_user.ma_tai_khoan)
+    if cart is None:
         return redirect(url_for("cart.show_cart_page"))
 
-    cart_details = CartDetail.query.filter_by(ma_gio_hang=cart.ma_gio_hang).all()
-
-    cart_items = []
-    total_price = 0
-    total_quantity = 0
-
-    for d in cart_details:
-        product = Product.query.filter_by(ma_san_pham=d.ma_san_pham).first()
-
-        if not product:
-            continue
-
-        # Lấy ảnh đầu tiên (nếu có).
-        image_url = None
-        if product.hinh_anhs:
-            image_url = product.hinh_anhs[0].duong_dan
-
-        item_total = d.so_luong * d.gia_tai_thoi_diem
-
-        cart_items.append(
-            {
-                "id": product.ma_san_pham,
-                "name": product.ten_san_pham,
-                "price": float(d.gia_tai_thoi_diem),
-                "quantity": d.so_luong,
-                "image": image_url,
-            }
-        )
-
-        total_price += item_total
-        total_quantity += d.so_luong
+    cart_details = get_cart_items(cart.ma_gio_hang)
+    cart_items = build_checkout_items(cart_details)
+    total_price, total_quantity = calculate_cart_totals(cart_details)
 
     return render_template(
         "checkouts.html",
