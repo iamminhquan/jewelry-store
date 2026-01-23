@@ -1,15 +1,33 @@
-from flask import Blueprint, abort, redirect, url_for, render_template, request, flash
-from flask_login import login_required, current_user
-from app.models.order import Order
-from app.models.order_detail import OrderDetail
-from app.models.invoice import Invoice
-from app.models.product import Product
-from app.extensions import db
-from app.models.cart import Cart
-from app.models.cart_detail import CartDetail
+"""
+User order routes module.
+
+This blueprint handles user-facing order operations including:
+- Viewing orders list
+- Creating orders from cart
+- Viewing order details
+- Cancelling orders
+- Purchase history
+- Invoice viewing
+"""
+
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
+
 from app.constants import OrderStatus
-from app.services.invoice_service import get_invoices_by_user
 from app.services.invoice_detail_service import get_invoice_detail_with_product
+from app.services.invoice_service import get_invoices_by_user
+from app.services.user_order_service import (
+    build_purchase_history,
+    cancel_user_order,
+    create_order_from_cart,
+    get_active_cart,
+    get_cart_details,
+    get_related_order,
+    get_user_completed_orders,
+    get_user_invoice_or_none,
+    get_user_order_or_none,
+    get_user_orders,
+)
 
 user_order_bp = Blueprint(
     "user_order",
@@ -18,170 +36,145 @@ user_order_bp = Blueprint(
 )
 
 
+# -----------------------------------------------------------------------------
+# Order List & Detail Routes
+# -----------------------------------------------------------------------------
+
 @user_order_bp.route("/", methods=["GET"])
 @login_required
 def show_orders():
     """Display all orders for the current user.
-    
+
     Returns:
-        Response: Template with user's orders list.
+        Rendered template with user's orders list.
     """
-    orders = Order.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan
-    ).order_by(Order.ngay_tao.desc()).all()
+    orders = get_user_orders(current_user.ma_tai_khoan)
 
     return render_template(
-        "user/orders.html", 
+        "user/orders.html",
         orders=orders,
         OrderStatus=OrderStatus
     )
 
 
-@user_order_bp.route("/", methods=["POST"])
-@login_required
-def create_order():
-    full_name = request.form.get("full_name")
-    phone = request.form.get("phone")
-    address = request.form.get("address")
-    payment_method = request.form.get("payment_method")
-
-    if not full_name or not phone or not address:
-        abort(400)
-
-    cart = Cart.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan, trang_thai=0
-    ).first_or_404()
-
-    cart_details = CartDetail.query.filter_by(ma_gio_hang=cart.ma_gio_hang).all()
-
-    if not cart_details:
-        abort(400)
-
-    tong_tien = sum(d.so_luong * d.gia_tai_thoi_diem for d in cart_details)
-
-    order = Order(
-        ma_tai_khoan=current_user.ma_tai_khoan,
-        tong_tien_tam_tinh=tong_tien,
-        trang_thai=OrderStatus.PENDING
-    )
-    db.session.add(order)
-    db.session.flush()
-
-    for d in cart_details:
-        db.session.add(
-            OrderDetail(
-                order_detail_id=order.ma_don_hang,
-                product_id=d.ma_san_pham,
-                quantity=d.so_luong,
-                price=d.gia_tai_thoi_diem,
-                total_fee=d.so_luong * d.gia_tai_thoi_diem,
-            )
-        )
-
-    cart.trang_thai = 1
-    db.session.commit()
-
-    return redirect(url_for("user_order.show_order_detail", order_id=order.ma_don_hang))
-
-
 @user_order_bp.route("/<int:order_id>")
 @login_required
-def show_order_detail(order_id):
+def show_order_detail(order_id: int):
     """Display order detail for the current user.
-    
+
     Args:
-        order_id (int): The order ID to display.
-        
+        order_id: The order ID to display.
+
     Returns:
-        Response: Template with order details.
+        Rendered template with order details.
     """
-    order = Order.query.filter_by(
-        ma_don_hang=order_id, ma_tai_khoan=current_user.ma_tai_khoan
-    ).first_or_404()
+    order = get_user_order_or_none(order_id, current_user.ma_tai_khoan)
+    if order is None:
+        abort(404)
 
     return render_template(
-        "user/order.html", 
+        "user/order.html",
         order=order,
         OrderStatus=OrderStatus
     )
 
 
+# -----------------------------------------------------------------------------
+# Order Creation
+# -----------------------------------------------------------------------------
+
+@user_order_bp.route("/", methods=["POST"])
+@login_required
+def create_order():
+    """Create a new order from the user's active cart.
+
+    Expected form data:
+        - full_name: Customer full name (required)
+        - phone: Customer phone number (required)
+        - address: Delivery address (required)
+        - payment_method: Payment method (optional)
+
+    Returns:
+        Redirect to order detail page on success.
+        Aborts with 400 if validation fails.
+    """
+    # Validate required fields
+    full_name = request.form.get("full_name")
+    phone = request.form.get("phone")
+    address = request.form.get("address")
+
+    if not all([full_name, phone, address]):
+        abort(400)
+
+    # Get active cart
+    cart = get_active_cart(current_user.ma_tai_khoan)
+    if cart is None:
+        abort(404)
+
+    # Get cart items
+    cart_details = get_cart_details(cart.ma_gio_hang)
+    if not cart_details:
+        abort(400)
+
+    # Create order from cart
+    order = create_order_from_cart(
+        user_id=current_user.ma_tai_khoan,
+        cart=cart,
+        cart_details=cart_details
+    )
+
+    return redirect(url_for("user_order.show_order_detail", order_id=order.ma_don_hang))
+
+
+# -----------------------------------------------------------------------------
+# Order Cancellation
+# -----------------------------------------------------------------------------
+
 @user_order_bp.route("/<int:order_id>/cancel", methods=["POST"])
 @login_required
-def cancel_order(order_id):
+def cancel_order(order_id: int):
     """Cancel an order (user-initiated).
-    
+
     Users can only cancel their own orders that are in Pending or Processing status.
-    
+
     Args:
-        order_id (int): The order ID to cancel.
-        
+        order_id: The order ID to cancel.
+
     Returns:
-        Response: Redirect to orders page with flash message.
+        Redirect to orders page with flash message.
     """
-    # Get order and verify ownership
-    order = Order.query.filter_by(
-        ma_don_hang=order_id, 
-        ma_tai_khoan=current_user.ma_tai_khoan
-    ).first_or_404()
-    
-    # Check if order can be cancelled
-    if not OrderStatus.can_user_cancel(order.trang_thai):
+    order = get_user_order_or_none(order_id, current_user.ma_tai_khoan)
+    if order is None:
+        abort(404)
+
+    success = cancel_user_order(order)
+
+    if success:
+        flash("Đơn hàng đã được hủy thành công.", "success")
+    else:
         flash("Không thể hủy đơn hàng này. Đơn hàng đang được giao hoặc đã hoàn thành.", "error")
-        return redirect(url_for("user_order.show_orders"))
-    
-    # Cancel the order
-    order.trang_thai = OrderStatus.CANCELLED
-    db.session.commit()
-    
-    flash("Đơn hàng đã được hủy thành công.", "success")
+
     return redirect(url_for("user_order.show_orders"))
 
+
+# -----------------------------------------------------------------------------
+# Purchase History
+# -----------------------------------------------------------------------------
 
 @user_order_bp.route("/purchase-history")
 @login_required
 def show_purchase_history():
     """Display purchase history (completed orders with invoices) for the current user.
-    
+
     Returns:
-        Response: Template with user's purchase history.
+        Rendered template with user's purchase history.
     """
-    # Get completed orders for the user
-    completed_orders = Order.query.filter_by(
-        ma_tai_khoan=current_user.ma_tai_khoan,
-        trang_thai=OrderStatus.COMPLETED
-    ).order_by(Order.ngay_tao.desc()).all()
-    
-    # Get invoices for the user
-    invoices = get_invoices_by_user(current_user.ma_tai_khoan)
-    
-    # Build purchase history with order details and product info
-    purchase_history = []
-    for order in completed_orders:
-        order_details_with_products = []
-        for detail in order.chi_tiet_don_hang:
-            product = Product.query.get(detail.ma_san_pham)
-            order_details_with_products.append({
-                'detail': detail,
-                'product': product
-            })
-        
-        # Find matching invoice if any
-        matching_invoice = None
-        for invoice in invoices:
-            try:
-                if hasattr(invoice, 'ma_don_hang') and invoice.ma_don_hang == order.ma_don_hang:
-                    matching_invoice = invoice
-                    break
-            except Exception:
-                pass
-        
-        purchase_history.append({
-            'order': order,
-            'invoice': matching_invoice,
-            'details': order_details_with_products
-        })
-    
+    user_id = current_user.ma_tai_khoan
+
+    completed_orders = get_user_completed_orders(user_id)
+    invoices = get_invoices_by_user(user_id)
+    purchase_history = build_purchase_history(completed_orders, invoices)
+
     return render_template(
         "user/purchase_history.html",
         purchase_history=purchase_history,
@@ -189,34 +182,28 @@ def show_purchase_history():
     )
 
 
+# -----------------------------------------------------------------------------
+# Invoice Detail
+# -----------------------------------------------------------------------------
+
 @user_order_bp.route("/invoice/<int:invoice_id>")
 @login_required
-def show_invoice_detail(invoice_id):
+def show_invoice_detail(invoice_id: int):
     """Display invoice detail for the current user.
-    
+
     Args:
-        invoice_id (int): The invoice ID to display.
-        
+        invoice_id: The invoice ID to display.
+
     Returns:
-        Response: Template with invoice details.
+        Rendered template with invoice details.
     """
-    # Get invoice and verify ownership
-    invoice = Invoice.query.filter_by(
-        ma_hoa_don=invoice_id,
-        ma_tai_khoan=current_user.ma_tai_khoan
-    ).first_or_404()
-    
-    # Get invoice details with product info
+    invoice = get_user_invoice_or_none(invoice_id, current_user.ma_tai_khoan)
+    if invoice is None:
+        abort(404)
+
     invoice_details = get_invoice_detail_with_product(invoice_id)
-    
-    # Get related order if exists
-    order = None
-    try:
-        if hasattr(invoice, 'ma_don_hang') and invoice.ma_don_hang:
-            order = Order.query.get(invoice.ma_don_hang)
-    except Exception:
-        pass
-    
+    order = get_related_order(invoice)
+
     return render_template(
         "user/invoice_detail.html",
         invoice=invoice,
