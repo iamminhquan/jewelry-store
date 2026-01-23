@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash
 
 from app.decorators import admin_required
+from app.constants import OrderStatus
 from app.services.order_service import (
     cancel_order,
     confirm_order,
@@ -66,6 +67,7 @@ def show_order_page():
         dang_giao=dang_giao,
         da_giao=da_giao,
         da_huy=da_huy,
+        OrderStatus=OrderStatus,
     )
 
 
@@ -89,6 +91,7 @@ def show_order_detail_page(id):
         order=order,
         account=account,
         order_details_with_product=order_details_with_product,
+        OrderStatus=OrderStatus,
     )
 
 
@@ -123,7 +126,7 @@ def cancel_order_route(id):
     order = get_order_or_404(id)
     
     # Kiểm tra điều kiện hủy đơn hàng
-    if order.trang_thai in [3, 4]:  # Đã giao hoặc đã hủy
+    if order.trang_thai in [OrderStatus.COMPLETED, OrderStatus.CANCELLED]:
         flash("Không thể hủy đơn hàng này.", "error")
     else:
         cancel_order(order)
@@ -136,6 +139,8 @@ def cancel_order_route(id):
 @admin_required
 def update_order_status_route(id):
     """Cập nhật trạng thái đơn hàng.
+    
+    Khi cập nhật trạng thái sang "Đã giao" (COMPLETED), hệ thống sẽ tự động tạo hóa đơn.
 
     Args:
         id (int): Mã đơn hàng.
@@ -146,8 +151,14 @@ def update_order_status_route(id):
     order = get_order_or_404(id)
     try:
         new_status = int(request.form.get("trang_thai"))
-        update_order_status(order, new_status)
-        flash("Trạng thái đơn hàng đã được cập nhật thành công.", "success")
+        order, invoice, invoice_created = update_order_status(order, new_status)
+        
+        if invoice_created and invoice:
+            flash(f"Trạng thái đơn hàng đã được cập nhật. Hóa đơn #{invoice.ma_hoa_don} đã được tạo tự động.", "success")
+        elif invoice and not invoice_created:
+            flash(f"Trạng thái đơn hàng đã được cập nhật. Hóa đơn #{invoice.ma_hoa_don} đã tồn tại.", "success")
+        else:
+            flash("Trạng thái đơn hàng đã được cập nhật thành công.", "success")
     except (TypeError, ValueError):
         flash("Trạng thái không hợp lệ.", "error")
     
@@ -169,7 +180,7 @@ def show_edit_order_page(id):
     account = Account.query.get(order.ma_tai_khoan)
 
     # Kiểm tra điều kiện chỉnh sửa
-    if order.trang_thai in [3, 4]:  # Đã giao hoặc đã hủy
+    if order.trang_thai in [OrderStatus.COMPLETED, OrderStatus.CANCELLED]:
         flash("Không thể chỉnh sửa đơn hàng đã giao hoặc đã hủy.", "error")
         return redirect(url_for("order.show_order_page"))
 
@@ -190,4 +201,5 @@ def show_edit_order_page(id):
         "admin/order/order_edit.html",
         order=order,
         account=account,
+        OrderStatus=OrderStatus,
     )

@@ -11,6 +11,7 @@ from app.services.invoice_service import (
 from app.services.invoice_detail_service import get_invoice_detail_with_product, create_invoice_detail, delete_invoice_detail
 from app.models.account import Account
 from app.models.product import Product
+from app.models.order import Order
 
 
 invoice_bp = Blueprint(
@@ -46,13 +47,21 @@ def show_invoice_page():
         da_huy,
     ) = get_invoice_page(keyword, status, date_from, date_to, min_value, max_value, page)
 
-    # Lấy thông tin khách hàng cho mỗi hóa đơn
+    # Lấy thông tin khách hàng và đơn hàng cho mỗi hóa đơn
     invoices_with_account = []
     for invoice in invoices:
         account = Account.query.get(invoice.ma_tai_khoan)
+        # Safely get order - ma_don_hang might not exist in older database
+        order = None
+        try:
+            if hasattr(invoice, 'ma_don_hang') and invoice.ma_don_hang:
+                order = Order.query.get(invoice.ma_don_hang)
+        except Exception:
+            pass
         invoices_with_account.append({
             'invoice': invoice,
-            'account': account
+            'account': account,
+            'order': order
         })
 
     return render_template(
@@ -131,12 +140,22 @@ def show_invoice_detail_page(id):
     """
     invoice = get_invoice_or_404(id)
     account = Account.query.get(invoice.ma_tai_khoan)
+    
+    # Safely get order - ma_don_hang might not exist in older database
+    order = None
+    try:
+        if hasattr(invoice, 'ma_don_hang') and invoice.ma_don_hang:
+            order = Order.query.get(invoice.ma_don_hang)
+    except Exception:
+        pass
+    
     invoice_details_with_product = get_invoice_detail_with_product(id)
 
     return render_template(
         "admin/invoice/invoice_detail.html",
         invoice=invoice,
         account=account,
+        order=order,
         invoice_details_with_product=invoice_details_with_product,
     )
 
