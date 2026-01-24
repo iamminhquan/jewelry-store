@@ -16,7 +16,7 @@
       <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <a href="{{ url_for('main.show_home_page') }}"
           class="text-[22px] font-medium uppercase tracking-[0.32em] text-slate-900">
-          pandora
+          XLQN
         </a>
         <div class="flex w-full max-w-2xl items-center justify-end gap-5">
           <form method="get" action="{{ url_for('search.search_products') }}">
@@ -48,14 +48,15 @@
 
 
           <div class="flex items-center gap-3 text-slate-700">
-            <button type="button" aria-label="Wishlist"
-              class="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100 hover:text-slate-900">
+            <a href="{{ url_for('main.show_account_page') }}#favorites" aria-label="Danh sách yêu thích"
+              class="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-rose-50 hover:text-rose-500"
+              title="Danh sách yêu thích">
               <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path
                   d="M12 20s-7-4.4-7-9.6A4.4 4.4 0 0 1 9.4 6c1.3 0 2.5.6 3.2 1.6A4 4 0 0 1 15.8 6 4.4 4.4 0 0 1 20 10.4C20 15.6 12 20 12 20Z"
                   stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-            </button>
+            </a>
             <button type="button" aria-label="Store"
               class="flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100 hover:text-slate-900">
               <svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -163,7 +164,7 @@
         <div class="sm:col-span-2 lg:col-span-1">
           <a href="{{ url_for('main.show_home_page') }}"
             class="inline-block text-xl font-medium uppercase tracking-[0.25em] text-slate-800">
-            Pandora
+            XLQN
           </a>
           <p class="mt-4 text-sm leading-relaxed text-slate-500">
             Thiết kế tinh tế, chất lượng bền vững. Mang đến vẻ đẹp vượt thời gian cho mọi khoảnh khắc.
@@ -241,7 +242,7 @@
                 </a>
               </li>
               <li>
-                <a href="{{ url_for('user.show_contact_page') }}"
+                <a href="{{ url_for('contact.show_contact_page') }}"
                   class="text-sm text-slate-500 transition-colors hover:text-rose-500">
                   Liên hệ
                 </a>
@@ -271,7 +272,7 @@
                   d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
               </svg>
               <a href="tel:0987654321" class="text-sm text-slate-500 transition-colors hover:text-rose-500">
-                0987 654 321
+                +84 987 654 321
               </a>
             </li>
             <li class="flex items-start gap-3">
@@ -282,7 +283,7 @@
               </svg>
               <a href="mailto:bonjour@jewelrystore.com.vn"
                 class="text-sm text-slate-500 transition-colors hover:text-rose-500">
-                bonjour@jewelrystore.com.vn
+                bonjour@xlqnstore.com.vn
               </a>
             </li>
             <li class="flex items-start gap-3">
@@ -293,7 +294,7 @@
                   d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
               </svg>
               <span class="text-sm text-slate-500">
-                123 Nguyễn Huệ, Quận 1, TP.HCM
+                65 Huỳnh Thúc Kháng, Phường Sài Gòn, Quận 1, TP.HCM
               </span>
             </li>
           </ul>
@@ -304,7 +305,7 @@
       <div class="border-t border-slate-200 py-6">
         <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
           <p class="text-xs text-slate-400">
-            &copy; {{ now().year if now is defined else "2026" }} Pandora Jewelry. All rights reserved.
+            &copy; {{ now().year if now is defined else "2026" }} XLQN. All rights reserved.
           </p>
           <div class="flex items-center gap-6">
             <a href="#" class="text-xs text-slate-400 transition-colors hover:text-slate-600">

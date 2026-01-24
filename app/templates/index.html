@@ -8,21 +8,17 @@
 
   <div id="slider" class="flex transition-transform duration-700 ease-in-out">
     {% for s in slide_products %}
-    <div class="min-w-full relative">
-      <img src="{{ url_for('static', filename=s.anh_chinh) }}" class="w-full h-[480px] object-cover">
-
+    <a href="/product/{{ s.ma_san_pham }}" class="min-w-full relative block cursor-pointer">
+      {% set slide_imgs = s.hinh_anhs | selectattr("anh_chinh", "equalto", 1) | list %}
+      {% set slide_img = slide_imgs[0] if slide_imgs else (s.hinh_anhs[0] if s.hinh_anhs else none) %}
+      <img src="{{ url_for('static', filename=slide_img.duong_dan) if slide_img else '' }}"
+        class="w-full h-[480px] object-cover" />
       <!-- Text -->
       <div class="absolute inset-0 flex items-center">
         <div class="ml-20 text-white space-y-6">
-          <h1 class="text-5xl font-bold tracking-widest">{{ s.ten_san_pham }}</h1>
-
-          <a href="/product/{{ s.ma_san_pham }}"
-            class="inline-block bg-white text-slate-800 px-10 py-4 font-semibold tracking-widest">
-            MUA NGAY
-          </a>
         </div>
       </div>
-    </div>
+    </a>
     {% endfor %}
   </div>
 
@@ -39,17 +35,43 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
     {% for product in best_sellers %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition 
-            flex flex-col h-full">
-      <img src="{{ url_for('static', filename=product.duong_dan) }}" class="w-full h-48 object-cover" />
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition flex flex-col h-full">
+      {% set imgs = product.hinh_anhs | selectattr("anh_chinh", "equalto", 1) | list %}
+      {% set img = imgs[0] if imgs else (product.hinh_anhs[0] if product.hinh_anhs else none) %}
+      
+      <!-- Image Container with Heart Icon -->
+      <div class="relative">
+        <a href="{{ url_for('user_product.show_product_detail', product_id=product.ma_san_pham) }}" class="block">
+          <img src="{{ url_for('static', filename=img.duong_dan) if img else '' }}" 
+               class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300" 
+               alt="{{ product.ten_san_pham }}" />
+        </a>
+        
+        <!-- Heart Icon (Wishlist) -->
+        <button type="button"
+                class="wishlist-btn absolute top-2 right-2 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm
+                       hover:bg-white hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500
+                       transition-all duration-200 {% if current_user.is_authenticated and product.ma_san_pham in favorite_ids %}is-favorited{% endif %}"
+                data-product-id="{{ product.ma_san_pham }}"
+                aria-label="{% if current_user.is_authenticated and product.ma_san_pham in favorite_ids %}Xóa khỏi yêu thích{% else %}Thêm vào yêu thích{% endif %}">
+          <!-- Outline Heart (default) -->
+          <svg class="heart-outline w-5 h-5 text-gray-400 hover:text-rose-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <!-- Filled Heart (favorited) -->
+          <svg class="heart-filled w-5 h-5 text-rose-500 hidden" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+      </div>
       <div class="p-6">
-
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
+        <a href="{{ url_for('user_product.show_product_detail', product_id=product.ma_san_pham) }}" class="block">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2 hover:text-pink-500 transition">{{ product.ten_san_pham }}</h3>
+        </a>
         <p class="text-gray-600 mb-4">{{ product.mo_ta[:60]}}...</p>
         <div class="flex justify-between items-center">
           <span class="text-2xl font-bold text-primary-600">{{ "{:,.0f}".format(product.gia_xuat) }} đ</span>
-          <a href="{{ url_for('cart.buy_now', product_id=product.ma_san_pham) }}" 
-             class="btn-secondary inline-flex items-center justify-center px-6 py-3 rounded-lg
+          <a href="{{ url_for('cart.buy_now', product_id=product.ma_san_pham) }}" class="btn-secondary inline-flex items-center justify-center px-6 py-3 rounded-lg
                     {% if product.so_luong == 0 %}pointer-events-none opacity-50{% endif %}">
             Mua ngay
           </a>
@@ -65,17 +87,43 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
     {% for product in new_products %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition 
-            flex flex-col h-full">
-      <img src="{{ url_for('static', filename=product.duong_dan) }}" class="w-full h-48 object-cover" />
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition flex flex-col h-full">
+      {% set imgs = product.hinh_anhs | selectattr("anh_chinh", "equalto", 1) | list %}
+      {% set img = imgs[0] if imgs else (product.hinh_anhs[0] if product.hinh_anhs else none) %}
+      
+      <!-- Image Container with Heart Icon -->
+      <div class="relative">
+        <a href="{{ url_for('user_product.show_product_detail', product_id=product.ma_san_pham) }}" class="block">
+          <img src="{{ url_for('static', filename=img.duong_dan) if img else '' }}" 
+               class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300" 
+               alt="{{ product.ten_san_pham }}" />
+        </a>
+        
+        <!-- Heart Icon (Wishlist) -->
+        <button type="button"
+                class="wishlist-btn absolute top-2 right-2 z-10 p-2 rounded-full bg-white/80 backdrop-blur-sm shadow-sm
+                       hover:bg-white hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500
+                       transition-all duration-200 {% if current_user.is_authenticated and product.ma_san_pham in favorite_ids %}is-favorited{% endif %}"
+                data-product-id="{{ product.ma_san_pham }}"
+                aria-label="{% if current_user.is_authenticated and product.ma_san_pham in favorite_ids %}Xóa khỏi yêu thích{% else %}Thêm vào yêu thích{% endif %}">
+          <!-- Outline Heart (default) -->
+          <svg class="heart-outline w-5 h-5 text-gray-400 hover:text-rose-500 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <!-- Filled Heart (favorited) -->
+          <svg class="heart-filled w-5 h-5 text-rose-500 hidden" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+      </div>
       <div class="p-6">
-
-        <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.ten_san_pham }}</h3>
+        <a href="{{ url_for('user_product.show_product_detail', product_id=product.ma_san_pham) }}" class="block">
+          <h3 class="text-xl font-semibold text-gray-800 mb-2 hover:text-pink-500 transition">{{ product.ten_san_pham }}</h3>
+        </a>
         <p class="text-gray-600 mb-4">{{ product.mo_ta[:80]}}...</p>
         <div class="flex justify-between items-center">
           <span class="text-2xl font-bold text-primary-600">{{ "{:,.0f}".format(product.gia_xuat) }} đ</span>
-          <a href="{{ url_for('cart.buy_now', product_id=product.ma_san_pham) }}" 
-             class="btn-secondary inline-flex items-center justify-center px-6 py-3 rounded-lg
+          <a href="{{ url_for('cart.buy_now', product_id=product.ma_san_pham) }}" class="btn-secondary inline-flex items-center justify-center px-6 py-3 rounded-lg
                     {% if product.so_luong == 0 %}pointer-events-none opacity-50{% endif %}">
             Mua ngay
           </a>
@@ -111,6 +159,7 @@
 
 {% block scripts %}
 <script>
+  // Slider functionality
   let index = 0;
   const slider = document.getElementById("slider");
   const total = slider.children.length;
@@ -124,6 +173,53 @@
   function prevSlide() { showSlide(index - 1); }
 
   setInterval(nextSlide, 5000);
+
+  // Wishlist Heart Toggle
+  document.querySelectorAll('.wishlist-btn').forEach(btn => {
+    // Initialize state based on class
+    if (btn.classList.contains('is-favorited')) {
+      btn.querySelector('.heart-outline').classList.add('hidden');
+      btn.querySelector('.heart-filled').classList.remove('hidden');
+    }
+
+    btn.addEventListener('click', async function(e) {
+      e.preventDefault();
+      const productId = this.dataset.productId;
+      const heartOutline = this.querySelector('.heart-outline');
+      const heartFilled = this.querySelector('.heart-filled');
+      const isFavorited = this.classList.contains('is-favorited');
+
+      {% if current_user.is_authenticated %}
+      try {
+        const response = await fetch(`/product/favorite/${productId}`, {
+          method: 'POST',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          // Toggle UI
+          this.classList.toggle('is-favorited');
+          heartOutline.classList.toggle('hidden');
+          heartFilled.classList.toggle('hidden');
+          
+          // Update aria-label
+          const newLabel = this.classList.contains('is-favorited') 
+            ? 'Xóa khỏi yêu thích' 
+            : 'Thêm vào yêu thích';
+          this.setAttribute('aria-label', newLabel);
+        }
+      } catch (error) {
+        console.error('Error toggling favorite:', error);
+      }
+      {% else %}
+      // Redirect to login if not authenticated
+      window.location.href = "{{ url_for('auth.show_sign_in_page') }}";
+      {% endif %}
+    });
+  });
 </script>
 
 {% endblock %}

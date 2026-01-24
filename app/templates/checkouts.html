@@ -6,7 +6,7 @@
   <div class="container mx-auto px-4 max-w-6xl">
     <form id="checkoutForm" method="POST" action="{{ url_for('user_order.create_order') }}"
       class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      
+
       {% if buy_now_product_id %}
       <!-- Hidden fields for Buy Now -->
       <input type="hidden" name="buy_now" value="true">
@@ -137,7 +137,8 @@
             {% for item in cart_items %}
             <div class="flex gap-4 relative group">
               <div class="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                <img src="{{ item.image }}" alt="" class="w-full h-full object-cover">
+                <img src="{{ url_for('static', filename=item.image) if item.image else '' }}"
+                  class="w-full h-full object-cover" />
               </div>
               <div class="flex-1">
                 <h3 class="text-sm font-medium text-gray-900 line-clamp-2">
