@@ -124,6 +124,16 @@
       Quản lý đánh giá
     </a>
 
+    <!-- Liên hệ -->
+    <a href="{{ url_for('admin_contact.show_contact_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
+      {% if '/admin/contact' in request.path %}
+        bg-rose-50 text-rose-600 font-medium
+      {% else %}
+        text-slate-600 hover:bg-slate-100
+      {% endif %}">
+      Quản lý liên hệ
+    </a>
+
     <!-- Báo cáo -->
     <a href="{{ url_for('report.show_report_page') }}" class="flex items-center gap-3 rounded-lg px-3 py-2
       {% if 'report' in request.path %}
