@@ -145,10 +145,26 @@ def build_cart_items_for_display(cart_items: list[CartDetail]) -> list[dict]:
     """
     result = []
     for item in cart_items:
+        product = Product.query.get(item.ma_san_pham)
+
+        if product is None:
+            continue
+
+        # Lấy ảnh chính hoặc ảnh đầu tiên nếu có
+        image_url = None
+        if product.hinh_anhs:
+            main_imgs = [img for img in product.hinh_anhs if img.anh_chinh == 1]
+            if main_imgs:
+                image_url = main_imgs[0].duong_dan
+            else:
+                image_url = product.hinh_anhs[0].duong_dan
+
         result.append({
             "id": item.ma_san_pham,
+            "name": product.ten_san_pham,
             "quantity": item.so_luong,
             "price": float(item.gia_tai_thoi_diem),
+            "image": f"/static/{image_url}" if image_url else "",
         })
     return result
 
