@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, date
 from typing import Dict, Any
 
-from sqlalchemy import func, and_
+from sqlalchemy import func
 
 from app.extensions import db
 from app.models.product import Product
@@ -28,9 +28,10 @@ def get_today_revenue() -> Dict[str, Any]:
         .filter(
             Invoice.trang_thai != 3,  # Không tính hóa đơn đã xóa
             Invoice.ngay_tao >= today_start,
-            Invoice.ngay_tao <= today_end
+            Invoice.ngay_tao <= today_end,
         )
-        .scalar() or 0
+        .scalar()
+        or 0
     )
 
     # Doanh thu hôm qua
@@ -39,26 +40,31 @@ def get_today_revenue() -> Dict[str, Any]:
         .filter(
             Invoice.trang_thai != 3,
             Invoice.ngay_tao >= yesterday_start,
-            Invoice.ngay_tao <= yesterday_end
+            Invoice.ngay_tao <= yesterday_end,
         )
-        .scalar() or 0
+        .scalar()
+        or 0
     )
 
-    growth = yesterday_revenue - today_revenue if yesterday_revenue > 0 else today_revenue
+    growth = (
+        yesterday_revenue - today_revenue if yesterday_revenue > 0 else today_revenue
+    )
 
     return {
         "amount": float(today_revenue),
         "growth": float(growth),
         "formatted_amount": f"₫{today_revenue:,.0f}",
         "formatted_growth": f"₫{abs(growth):,.0f}",
-        "is_increase": growth >= 0
+        "is_increase": growth >= 0,
     }
 
 
 def get_order_stats() -> Dict[str, Any]:
     """Thống kê đơn hàng."""
     total_orders = Order.query.count()
-    pending_orders = Order.query.filter(Order.trang_thai.in_([0, 1, 2])).count()  # Chờ xác nhận, đang xử lý, đang giao
+    pending_orders = Order.query.filter(
+        Order.trang_thai.in_([0, 1, 2])
+    ).count()  # Chờ xác nhận, đang xử lý, đang giao
     completed_orders = Order.query.filter_by(trang_thai=3).count()
     cancelled_orders = Order.query.filter_by(trang_thai=4).count()
 
@@ -67,19 +73,16 @@ def get_order_stats() -> Dict[str, Any]:
     today_start = datetime.combine(today, datetime.min.time())
     today_end = datetime.combine(today, datetime.max.time())
 
-    new_orders_today = (
-        Order.query.filter(
-            Order.ngay_tao >= today_start,
-            Order.ngay_tao <= today_end
-        ).count()
-    )
+    new_orders_today = Order.query.filter(
+        Order.ngay_tao >= today_start, Order.ngay_tao <= today_end
+    ).count()
 
     return {
         "total": total_orders,
         "new_today": new_orders_today,
         "pending": pending_orders,
         "completed": completed_orders,
-        "cancelled": cancelled_orders
+        "cancelled": cancelled_orders,
     }
 
 
@@ -93,17 +96,16 @@ def get_customer_stats() -> Dict[str, Any]:
     today_start = datetime.combine(today, datetime.min.time())
     today_end = datetime.combine(today, datetime.max.time())
 
-    new_customers_today = (
-        Account.query.filter(
-            Account.role == 0,  # Khách hàng
-            Account.ngay_sinh >= today_start,  # Sử dụng ngay_sinh làm ngày tạo (có thể cần điều chỉnh)
-        ).count()
-    )
+    new_customers_today = Account.query.filter(
+        Account.role == 0,  # Khách hàng
+        Account.ngay_sinh
+        >= today_start,  # Sử dụng ngay_sinh làm ngày tạo (có thể cần điều chỉnh)
+    ).count()
 
     return {
         "total": total_customers,
         "active": active_customers,
-        "new_today": new_customers_today
+        "new_today": new_customers_today,
     }
 
 
@@ -117,16 +119,14 @@ def get_product_stats() -> Dict[str, Any]:
 
     # Sản phẩm sắp hết hàng (so_luong <= 10)
     low_stock = Product.query.filter(
-        Product.trang_thai == 1,
-        Product.so_luong > 0,
-        Product.so_luong <= 10
+        Product.trang_thai == 1, Product.so_luong > 0, Product.so_luong <= 10
     ).count()
 
     return {
         "total": total_products,
         "active": active_products,
         "out_of_stock": out_of_stock,
-        "low_stock": low_stock
+        "low_stock": low_stock,
     }
 
 
@@ -135,26 +135,20 @@ def get_category_stats() -> Dict[str, Any]:
     total_categories = Category.query.count()
     active_categories = Category.query.filter_by(trang_thai=1).count()
 
-    return {
-        "total": total_categories,
-        "active": active_categories
-    }
+    return {"total": total_categories, "active": active_categories}
 
 
 def get_brand_stats() -> Dict[str, Any]:
     """Thống kê thương hiệu."""
     total_brands = Brand.query.count()
 
-    return {
-        "total": total_brands
-    }
+    return {"total": total_brands}
 
 
 def get_recent_orders(limit: int = 5) -> list:
     """Lấy danh sách đơn hàng gần đây."""
     orders = (
-        Order.query
-        .outerjoin(Account, Order.ma_tai_khoan == Account.ma_tai_khoan)
+        Order.query.outerjoin(Account, Order.ma_tai_khoan == Account.ma_tai_khoan)
         .order_by(Order.ngay_tao.desc())
         .limit(limit)
         .all()
@@ -163,15 +157,21 @@ def get_recent_orders(limit: int = 5) -> list:
     result = []
     for order in orders:
         status_info = get_order_status_info(order.trang_thai)
-        result.append({
-            "id": order.ma_don_hang,
-            "customer_name": getattr(order, 'account', None).ho_ten if getattr(order, 'account', None) else "N/A",
-            "total": float(order.tong_tien_tam_tinh or 0),
-            "formatted_total": f"₫{order.tong_tien_tam_tinh or 0:,.0f}",
-            "status": status_info["label"],
-            "status_class": status_info["class"],
-            "created_at": order.ngay_tao.strftime("%d/%m/%Y %H:%M") if order.ngay_tao else ""
-        })
+        result.append(
+            {
+                "id": order.ma_don_hang,
+                "customer_name": getattr(order, "account", None).ho_ten
+                if getattr(order, "account", None)
+                else "N/A",
+                "total": float(order.tong_tien_tam_tinh or 0),
+                "formatted_total": f"₫{order.tong_tien_tam_tinh or 0:,.0f}",
+                "status": status_info["label"],
+                "status_class": status_info["class"],
+                "created_at": order.ngay_tao.strftime("%d/%m/%Y %H:%M")
+                if order.ngay_tao
+                else "",
+            }
+        )
 
     return result
 
@@ -179,11 +179,8 @@ def get_recent_orders(limit: int = 5) -> list:
 def get_low_stock_products(limit: int = 5) -> list:
     """Lấy danh sách sản phẩm sắp hết hàng."""
     products = (
-        Product.query
-        .filter(
-            Product.trang_thai == 1,
-            Product.so_luong <= 10,
-            Product.so_luong > 0
+        Product.query.filter(
+            Product.trang_thai == 1, Product.so_luong <= 10, Product.so_luong > 0
         )
         .order_by(Product.so_luong.asc())
         .limit(limit)
@@ -192,12 +189,14 @@ def get_low_stock_products(limit: int = 5) -> list:
 
     result = []
     for product in products:
-        result.append({
-            "id": product.ma_san_pham,
-            "name": product.ten_san_pham,
-            "stock": product.so_luong,
-            "status": "warning" if product.so_luong <= 5 else "normal"
-        })
+        result.append(
+            {
+                "id": product.ma_san_pham,
+                "name": product.ten_san_pham,
+                "stock": product.so_luong,
+                "status": "warning" if product.so_luong <= 5 else "normal",
+            }
+        )
 
     return result
 
@@ -205,11 +204,7 @@ def get_low_stock_products(limit: int = 5) -> list:
 def get_out_of_stock_products(limit: int = 5) -> list:
     """Lấy danh sách sản phẩm hết hàng."""
     products = (
-        Product.query
-        .filter(
-            Product.trang_thai == 1,
-            Product.so_luong == 0
-        )
+        Product.query.filter(Product.trang_thai == 1, Product.so_luong == 0)
         .order_by(Product.ten_san_pham)
         .limit(limit)
         .all()
@@ -217,12 +212,14 @@ def get_out_of_stock_products(limit: int = 5) -> list:
 
     result = []
     for product in products:
-        result.append({
-            "id": product.ma_san_pham,
-            "name": product.ten_san_pham,
-            "stock": 0,
-            "status": "danger"
-        })
+        result.append(
+            {
+                "id": product.ma_san_pham,
+                "name": product.ten_san_pham,
+                "stock": 0,
+                "status": "danger",
+            }
+        )
 
     return result
 
@@ -236,7 +233,9 @@ def get_order_status_info(status: int) -> Dict[str, str]:
         3: {"label": "Đã giao", "class": "bg-emerald-50 text-emerald-600"},
         4: {"label": "Đã hủy", "class": "bg-rose-50 text-rose-600"},
     }
-    return status_map.get(status, {"label": "Không xác định", "class": "bg-slate-50 text-slate-600"})
+    return status_map.get(
+        status, {"label": "Không xác định", "class": "bg-slate-50 text-slate-600"}
+    )
 
 
 def get_dashboard_data() -> Dict[str, Any]:
@@ -255,12 +254,11 @@ def get_dashboard_data() -> Dict[str, Any]:
 
 
 def get_website_info() -> Dict[str, str]:
-
     return {
-        "name": "Jewelry Store",
+        "name": "XLQN Store",
         "description": "Cửa hàng trang sức cao cấp với các sản phẩm chất lượng",
-        "phone": "0123 456 789",
-        "email": "contact@jewelry-store.com",
+        "phone": "+84 987 654 321",
+        "email": "bonjour@xlqnstore.com.vn",
         "address": "65 Đường Huỳnh Thúc Kháng, Quận 1, TP.HCM",
-        "working_hours": "8:00 - 18:00 (Thứ 2 - Chủ nhật)"
+        "working_hours": "8:00 - 18:00 (Thứ 2 - Chủ nhật)",
     }
