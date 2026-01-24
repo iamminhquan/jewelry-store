@@ -18,3 +18,17 @@ class Contact(db.Model):
     )
 
     ngay_tao = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __init__(
+        self,
+        customer_name,
+        email,
+        phone,
+        content,
+        account_id=None,
+    ):
+        self.ten_khach_hang = customer_name
+        self.email = email
+        self.so_dien_thoai = phone
+        self.noi_dung = content
+        self.ma_tai_khoan = account_id
