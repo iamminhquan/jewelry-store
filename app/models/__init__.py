@@ -24,5 +24,4 @@ from .invoice_detail import InvoiceDetail
 from .order import Order
 from .order_detail import OrderDetail
 
-from .invoice import Invoice
-from .invoice_detail import InvoiceDetail
+from .favorite import Favorite
