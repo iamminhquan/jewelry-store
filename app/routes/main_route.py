@@ -5,6 +5,7 @@ from app.services.dashboard_service import get_dashboard_data, get_website_info
 from app.models.product import Product
 from app.models.order import Order
 from app.services.user_product_service import get_best_seller_products, get_new_products
+from app.services.favorite_service import get_user_favorites, get_user_favorite_ids
 from app.constants import OrderStatus
 
 main_bp = Blueprint(
@@ -25,11 +26,17 @@ def show_home_page():
         .all()
     )
 
+    # Lấy danh sách ID sản phẩm yêu thích của user (nếu đã đăng nhập)
+    favorite_ids = []
+    if current_user.is_authenticated:
+        favorite_ids = get_user_favorite_ids(current_user.ma_tai_khoan)
+
     return render_template(
         "index.html",
         slide_products=slide_products,
         best_sellers=best_sellers,
         new_products=new_products,
+        favorite_ids=favorite_ids,
     )
 
 
@@ -106,11 +113,15 @@ def show_account_page():
         ma_tai_khoan=current_user.ma_tai_khoan
     ).order_by(Order.ngay_tao.desc()).all()
 
+    # Get user's favorite products
+    favorite_products = get_user_favorites(current_user.ma_tai_khoan)
+
     return render_template(
         "account.html",
         user=current_user,
         orders=orders,
         OrderStatus=OrderStatus,
+        favorite_products=favorite_products,
     )
 
 
