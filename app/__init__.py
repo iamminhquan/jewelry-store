@@ -40,11 +40,12 @@ def create_app():
     from app.routes.admin.invoice_route import invoice_bp
     from app.routes.admin.report_route import report_bp
     from app.routes.admin.comment_route import comment_bp
+    from app.routes.admin.contact_route import admin_contact_bp
     from app.routes.auth_route import auth_bp
     from app.routes.admin.admin_route import admin_route
     from app.routes.admin.account_route import admin_account_bp
     from app.routes.users.search_route import search_bp
-    from app.routes.users.contact_route import user_bp
+    from app.routes.users.contact_route import contact_bp
     from app.routes.users.product_route import user_product_bp
     from app.routes.users.cart_route import cart_bp
     from app.routes.users.order_route import user_order_bp
@@ -61,11 +62,12 @@ def create_app():
     app.register_blueprint(invoice_bp)
     app.register_blueprint(report_bp)
     app.register_blueprint(comment_bp)
+    app.register_blueprint(admin_contact_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_route)
     app.register_blueprint(admin_account_bp)
     app.register_blueprint(search_bp)
-    app.register_blueprint(user_bp)
+    app.register_blueprint(contact_bp)
     app.register_blueprint(user_product_bp)
     app.register_blueprint(cart_bp)
     app.register_blueprint(user_order_bp)
